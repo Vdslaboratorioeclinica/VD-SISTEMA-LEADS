@@ -1,22 +1,51 @@
-import { Check, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Check, Loader2, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
+import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
 import {
-  permissionDefinitions,
-  permissionMatrix,
-  syntheticLead,
-  syntheticUsers,
-} from '@/data/accessControl'
+  listSyntheticLeads,
+  listSyntheticUsers,
+  type PersistedLead,
+  type PersistedUser,
+} from '@/services/accessFixtures'
 
 export default function AccessControlPanel() {
+  const [users, setUsers] = useState<PersistedUser[]>([])
+  const [leads, setLeads] = useState<PersistedLead[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    Promise.all([listSyntheticUsers(), listSyntheticLeads()])
+      .then(([loadedUsers, loadedLeads]) => {
+        if (!active) return
+        setUsers(loadedUsers)
+        setLeads(loadedLeads)
+      })
+      .catch(() => {
+        if (active) setError('Não foi possível carregar os fixtures persistidos no Skip Cloud.')
+      })
+      .finally(() => {
+        if (active) setIsLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
   return (
     <section className="space-y-6" aria-labelledby="access-control-title">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#10B981]">T1.1 · Fundação de acesso</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#10B981]">
+            T1.1 · Fundação de acesso
+          </p>
           <h2 id="access-control-title" className="mt-1 text-xl font-semibold text-[#F1F5F9]">
             Perfis e usuários sintéticos
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-[#94A3B8]">
-            Matriz mínima preparada para homologação da VDS. A autenticação e a auditoria serão implementadas nas próximas tasks.
+            Matriz mínima preparada para homologação da VDS. A autenticação e a auditoria serão
+            implementadas nas próximas tasks.
           </p>
         </div>
         <div className="inline-flex items-center gap-2 self-start rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-medium text-amber-300 sm:self-auto">
@@ -24,8 +53,26 @@ export default function AccessControlPanel() {
         </div>
       </div>
 
+      {isLoading && (
+        <div
+          className="flex items-center gap-2 rounded-xl border border-[#243352] bg-[#111A2C] p-4 text-sm text-[#94A3B8]"
+          role="status"
+        >
+          <Loader2 className="h-4 w-4 animate-spin text-[#10B981]" /> Carregando registros
+          persistidos…
+        </div>
+      )}
+      {error && (
+        <div
+          className="rounded-xl border border-rose-400/30 bg-rose-400/10 p-4 text-sm text-rose-200"
+          role="alert"
+        >
+          {error}
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
-        {syntheticUsers.map((user) => (
+        {users.map((user) => (
           <article key={user.id} className="rounded-xl border border-[#243352] bg-[#0B1120]/60 p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -42,7 +89,7 @@ export default function AccessControlPanel() {
               </span>
             </div>
             <div className="mt-4 flex items-center justify-between border-t border-[#243352] pt-3 text-xs text-[#94A3B8]">
-              <span>ID: {user.id}</span>
+              <span>ID: {user.synthetic_id}</span>
               <span className="text-[#10B981]">{user.status}</span>
             </div>
           </article>
@@ -84,7 +131,9 @@ export default function AccessControlPanel() {
                   <td className="px-5 py-3">
                     <Check className="h-4 w-4 text-[#10B981]" aria-label="Permitido" />
                   </td>
-                  <td className="max-w-xs px-5 py-3 text-xs leading-5 text-[#94A3B8]">{permission.description}</td>
+                  <td className="max-w-xs px-5 py-3 text-xs leading-5 text-[#94A3B8]">
+                    {permission.description}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -95,15 +144,33 @@ export default function AccessControlPanel() {
       <div className="rounded-xl border border-dashed border-[#10B981]/40 bg-[#10B981]/5 p-5">
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#10B981]" />
-          <div>
-            <h3 className="font-semibold text-[#F1F5F9]">Fixture de lead para homologação</h3>
-            <p className="mt-1 text-sm text-[#94A3B8]">{syntheticLead.dataClass}. Use este registro apenas para demonstrar o fluxo.</p>
-            <div className="mt-3 grid gap-2 text-xs text-[#CBD5E1] sm:grid-cols-2 lg:grid-cols-4">
-              <span><strong className="text-[#94A3B8]">ID:</strong> {syntheticLead.id}</span>
-              <span><strong className="text-[#94A3B8]">Nome:</strong> {syntheticLead.name}</span>
-              <span><strong className="text-[#94A3B8]">Telefone:</strong> {syntheticLead.phone}</span>
-              <span><strong className="text-[#94A3B8]">Origem:</strong> {syntheticLead.origin}</span>
-            </div>
+          <div className="w-full">
+            <h3 className="font-semibold text-[#F1F5F9]">Fixtures de leads persistidos</h3>
+            {leads.length === 0 && !isLoading ? (
+              <p className="mt-1 text-sm text-amber-200">
+                Nenhum lead sintético encontrado no backend.
+              </p>
+            ) : (
+              leads.map((lead) => (
+                <div
+                  key={lead.id}
+                  className="mt-3 grid gap-2 text-xs text-[#CBD5E1] sm:grid-cols-2 lg:grid-cols-4"
+                >
+                  <span>
+                    <strong className="text-[#94A3B8]">ID:</strong> {lead.synthetic_id}
+                  </span>
+                  <span>
+                    <strong className="text-[#94A3B8]">Nome:</strong> {lead.name}
+                  </span>
+                  <span>
+                    <strong className="text-[#94A3B8]">Telefone:</strong> {lead.phone}
+                  </span>
+                  <span>
+                    <strong className="text-[#94A3B8]">Origem:</strong> {lead.origin}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

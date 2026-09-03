@@ -28,12 +28,36 @@ export const accessProfiles = [
 ]
 
 export const permissionDefinitions: PermissionDefinition[] = [
-  { key: 'leads.view', label: 'Visualizar leads', description: 'Consultar leads disponíveis para atendimento' },
-  { key: 'leads.create', label: 'Criar lead', description: 'Registrar um novo lead sintético ou autorizado' },
-  { key: 'leads.update', label: 'Atualizar lead', description: 'Atualizar status, contato e necessidade' },
-  { key: 'leads.assign', label: 'Atribuir responsável', description: 'Distribuir leads para a equipe' },
-  { key: 'users.manage', label: 'Gerenciar usuários', description: 'Habilitar, desativar e alterar perfis' },
-  { key: 'audit.view', label: 'Consultar auditoria', description: 'Consultar alterações e tentativas proibidas' },
+  {
+    key: 'leads.view',
+    label: 'Visualizar leads',
+    description: 'Consultar leads disponíveis para atendimento',
+  },
+  {
+    key: 'leads.create',
+    label: 'Criar lead',
+    description: 'Registrar um novo lead sintético ou autorizado',
+  },
+  {
+    key: 'leads.update',
+    label: 'Atualizar lead',
+    description: 'Atualizar status, contato e necessidade',
+  },
+  {
+    key: 'leads.assign',
+    label: 'Atribuir responsável',
+    description: 'Distribuir leads para a equipe',
+  },
+  {
+    key: 'users.manage',
+    label: 'Gerenciar usuários',
+    description: 'Habilitar, desativar e alterar perfis',
+  },
+  {
+    key: 'audit.view',
+    label: 'Consultar auditoria',
+    description: 'Consultar alterações e tentativas proibidas',
+  },
 ]
 
 export const permissionMatrix: Record<AccessProfile, PermissionKey[]> = {
