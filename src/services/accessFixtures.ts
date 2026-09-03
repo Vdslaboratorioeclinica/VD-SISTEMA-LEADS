@@ -18,6 +18,10 @@ export type PersistedLead = RecordModel & {
   data_class: string
 }
 
+export async function bootstrapSyntheticFixtures(): Promise<void> {
+  await pb.send('/backend/v1/t1/bootstrap', { method: 'POST', body: {} })
+}
+
 export async function listSyntheticUsers(): Promise<PersistedUser[]> {
   return pb.collection('synthetic_users').getFullList<PersistedUser>({ sort: 'synthetic_id' })
 }

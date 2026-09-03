@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Check, Loader2, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
 import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
 import {
+  bootstrapSyntheticFixtures,
   listSyntheticLeads,
   listSyntheticUsers,
   type PersistedLead,
@@ -16,7 +17,8 @@ export default function AccessControlPanel() {
 
   useEffect(() => {
     let active = true
-    Promise.all([listSyntheticUsers(), listSyntheticLeads()])
+    bootstrapSyntheticFixtures()
+      .then(() => Promise.all([listSyntheticUsers(), listSyntheticLeads()]))
       .then(([loadedUsers, loadedLeads]) => {
         if (!active) return
         setUsers(loadedUsers)
