@@ -27,7 +27,7 @@ migrate(
       ],
       indexes: ['CREATE UNIQUE INDEX idx_synthetic_users_id ON synthetic_users (synthetic_id)'],
     })
-    app.save(users)
+    db.save(users)
 
     const leads = new Collection({
       type: 'base',
@@ -52,7 +52,7 @@ migrate(
       ],
       indexes: ['CREATE UNIQUE INDEX idx_leads_synthetic_id ON leads (synthetic_id)'],
     })
-    app.save(leads)
+    db.save(leads)
 
     const usersData = [
       {
@@ -73,7 +73,7 @@ migrate(
     usersData.forEach((data) => {
       const record = new Record(users)
       record.load(data)
-      app.save(record)
+      db.save(record)
     })
 
     const lead = new Record(leads)
@@ -85,12 +85,12 @@ migrate(
       status: 'Novo',
       data_class: 'Sintético — não é paciente real',
     })
-    app.save(lead)
+    db.save(lead)
   },
-  (app) => {
-    const users = app.findCollectionByNameOrId('synthetic_users')
-    const leads = app.findCollectionByNameOrId('leads')
-    app.delete(users)
-    app.delete(leads)
+  (db) => {
+    const users = db.findCollectionByNameOrId('synthetic_users')
+    const leads = db.findCollectionByNameOrId('leads')
+    db.delete(users)
+    db.delete(leads)
   },
 )
