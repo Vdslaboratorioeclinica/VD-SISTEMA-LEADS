@@ -88,8 +88,8 @@ migrate(
     app.save(lead)
   },
   (app) => {
-    const leads = app.findCollectionByNameOrId('leads')
     const users = app.findCollectionByNameOrId('synthetic_users')
+    const leads = app.findCollectionByNameOrId('leads')
     app.delete(users)
     app.delete(leads)
   },
