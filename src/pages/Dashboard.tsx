@@ -10,6 +10,7 @@ import {
   Calendar,
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import AccessControlPanel from '@/components/AccessControlPanel'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -116,6 +117,8 @@ export default function Dashboard() {
             <p className="text-xs text-[#94A3B8] mt-1 font-medium">Ciclo médio de 24 dias</p>
           </div>
         </div>
+
+        <AccessControlPanel />
 
         {/* Recent leads table preview */}
         <div className="rounded-2xl bg-[#111A2C] border border-[#243352] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.25)] space-y-4">
