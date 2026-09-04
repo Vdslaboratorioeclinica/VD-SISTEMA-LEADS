@@ -10,6 +10,7 @@ import {
   type LeadInput,
   type PersistedLead,
 } from '@/services/accessFixtures'
+import { createAuditEvent } from '@/services/audit'
 
 const initialForm: LeadInput = {
   name: '',
@@ -47,6 +48,16 @@ export default function LeadEntryPanel({
     setNotice(null)
     try {
       const lead = await createLead(form)
+      await createAuditEvent({
+        actorId: user.id,
+        actorEmail: user.email as string,
+        actorProfile: profile,
+        action: 'lead.created',
+        entity: 'lead',
+        entityId: lead.id,
+        newValue: lead.phone,
+        result: 'success',
+      })
       onCreated(lead)
       setForm(initialForm)
       setNotice(`Lead criado com telefone normalizado: ${lead.phone}. Estado: ${lead.status}.`)
