@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Loader2, ShieldAlert, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
 import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
+import { leadFieldDictionary, leadInitialStatus, leadOrigins } from '@/data/leadDictionary'
 import { useAuth } from '@/context/AuthContext'
 import {
   listSyntheticLeads,
@@ -174,6 +175,45 @@ export default function AccessControlPanel() {
             </div>
           </article>
         ))}
+      </div>
+
+      <div className="rounded-xl border border-[#243352] bg-[#111A2C] p-5">
+        <h3 className="font-semibold text-[#F1F5F9]">Dicionário homologado de leads</h3>
+        <p className="mt-1 text-xs text-[#94A3B8]">
+          Campos mínimos da T1.4; cadastro, normalização e busca serão implementados na próxima
+          task.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-sm">
+            <thead className="border-b border-[#243352] text-xs uppercase tracking-wider text-[#94A3B8]">
+              <tr>
+                <th className="px-3 py-2 font-medium">Campo</th>
+                <th className="px-3 py-2 font-medium">Tipo</th>
+                <th className="px-3 py-2 font-medium">Obrigatório</th>
+                <th className="px-3 py-2 font-medium">Regra</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#243352]/70">
+              {leadFieldDictionary.map((field) => (
+                <tr key={field.key}>
+                  <td className="px-3 py-2 text-[#F1F5F9]">{field.label}</td>
+                  <td className="px-3 py-2 text-[#CBD5E1]">{field.type}</td>
+                  <td className="px-3 py-2 text-[#CBD5E1]">{field.required ? 'Sim' : 'Não'}</td>
+                  <td className="px-3 py-2 text-xs text-[#94A3B8]">{field.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 grid gap-3 text-sm text-[#CBD5E1] sm:grid-cols-2">
+          <div>
+            <strong className="text-[#94A3B8]">Origens controladas:</strong>{' '}
+            {leadOrigins.join(', ')}
+          </div>
+          <div>
+            <strong className="text-[#94A3B8]">Estado inicial:</strong> {leadInitialStatus}
+          </div>
+        </div>
       </div>
 
       <div className="rounded-xl border border-[#243352] bg-[#111A2C] p-5">
