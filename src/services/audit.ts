@@ -1,6 +1,7 @@
 import type { RecordModel } from 'pocketbase'
 import pb from '@/lib/pocketbase/client'
 import type { AccessProfile, PermissionKey } from '@/data/accessControl'
+import { funnelFinalStates, funnelLossReasons, funnelTransitions } from '@/data/funnelDictionary'
 
 export type AuditAction =
   | 'lead.created'
@@ -57,11 +58,28 @@ export async function updateLeadStatusWithAudit(input: {
   leadId: string
   previousStatus: string
   newStatus: string
+  lossReason?: string
   actorId: string
   actorEmail: string
   actorProfile: AccessProfile
 }): Promise<AuditEvent> {
-  await pb.collection('leads').update(input.leadId, { status: input.newStatus })
+  const transitionAllowed = funnelTransitions.some(
+    (transition) => transition.from === input.previousStatus && transition.to === input.newStatus,
+  )
+  if (!transitionAllowed)
+    throw new Error(
+      `Transição inválida: ${input.previousStatus} → ${input.newStatus}. Consulte as transições permitidas do funil.`,
+    )
+
+  const isLoss = input.newStatus === 'Perdido'
+  const lossReason = input.lossReason?.trim() || ''
+  if (isLoss && !lossReason)
+    throw new Error('Para mover um lead para Perdido é obrigatório informar o motivo de perda.')
+
+  const payload: Record<string, string> = { status: input.newStatus }
+  if (isLoss) payload.loss_reason = lossReason
+
+  await pb.collection('leads').update(input.leadId, payload)
   try {
     return await createAuditEvent({
       actorId: input.actorId,
@@ -71,7 +89,7 @@ export async function updateLeadStatusWithAudit(input: {
       entity: 'lead',
       entityId: input.leadId,
       previousValue: input.previousStatus,
-      newValue: input.newStatus,
+      newValue: isLoss ? `${input.newStatus} (${lossReason})` : input.newStatus,
       result: 'success',
     })
   } catch (error) {
@@ -84,6 +102,20 @@ export async function updateLeadStatusWithAudit(input: {
     }
     throw error
   }
+}
+
+export function nextAllowedStatuses(currentStatus: string): string[] {
+  return funnelTransitions
+    .filter((transition) => transition.from === currentStatus)
+    .map((transition) => transition.to)
+}
+
+export function isFinalStatus(status: string): boolean {
+  return (funnelFinalStates as readonly string[]).includes(status)
+}
+
+export function lossReasonOptions(): readonly string[] {
+  return funnelLossReasons
 }
 
 export async function registerDeniedPermission(input: {

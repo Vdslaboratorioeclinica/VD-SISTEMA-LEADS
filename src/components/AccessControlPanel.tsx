@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
 import LeadEntryPanel from '@/components/LeadEntryPanel'
 import { leadFieldDictionary, leadInitialStatus, leadOrigins } from '@/data/leadDictionary'
-import { funnelStates } from '@/data/funnelDictionary'
 import { useAuth } from '@/context/AuthContext'
 import {
   listSyntheticLeads,
@@ -14,14 +13,15 @@ import {
 } from '@/services/accessFixtures'
 import {
   createAuditEvent,
+  isFinalStatus,
   listAuditEvents,
+  lossReasonOptions,
+  nextAllowedStatuses,
   registerDeniedPermission,
   updateLeadStatusWithAudit,
   type AuditEvent,
 } from '@/services/audit'
 import { registerFirstResponse } from '@/services/accessFixtures'
-
-const leadStatuses = funnelStates
 
 export default function AccessControlPanel() {
   const { user, profile, hasPermission } = useAuth()
@@ -32,6 +32,8 @@ export default function AccessControlPanel() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [lossReasonByLead, setLossReasonByLead] = useState<Record<string, string>>({})
+  const [pendingLossLead, setPendingLossLead] = useState<string | null>(null)
 
   async function reloadAudit() {
     if (profile === 'Gestor') setEvents(await listAuditEvents())
@@ -67,17 +69,29 @@ export default function AccessControlPanel() {
         leadId: lead.id,
         previousStatus: lead.status,
         newStatus,
+        lossReason: newStatus === 'Perdido' ? lossReasonByLead[lead.id] : undefined,
         actorId: user.id,
         actorEmail: user.email as string,
         actorProfile: profile,
       })
       setLeads((current) =>
-        current.map((item) => (item.id === lead.id ? { ...item, status: newStatus } : item)),
+        current.map((item) =>
+          item.id === lead.id
+            ? {
+                ...item,
+                status: newStatus,
+                loss_reason: newStatus === 'Perdido' ? lossReasonByLead[lead.id] : item.loss_reason,
+              }
+            : item,
+        ),
       )
+      setLossReasonByLead((current) => ({ ...current, [lead.id]: '' }))
       setNotice(`Alteração auditada: ${event.previous_value} → ${event.new_value}.`)
       await reloadAudit()
-    } catch {
-      setError('Não foi possível salvar e auditar a alteração; o valor anterior foi preservado.')
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : 'Não foi possível salvar e auditar a alteração.',
+      )
     } finally {
       setIsSaving(false)
     }
@@ -376,32 +390,39 @@ export default function AccessControlPanel() {
         <p className="mt-1 text-xs text-[#94A3B8]">
           A operação grava o valor anterior e o novo na mesma ação.
         </p>
-        {leads.map((lead) => (
-          <div key={lead.id} className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-            <span className="font-medium text-[#F1F5F9]">
-              {lead.name} — {lead.status}
-            </span>
-            <label className="sr-only" htmlFor={`status-${lead.id}`}>
-              Novo status do lead
-            </label>
-            <select
-              id={`status-${lead.id}`}
-              value={lead.status}
-              disabled={isSaving || !hasPermission('leads.update')}
-              onChange={(event) => void handleStatusChange(lead, event.target.value)}
-              className="rounded-lg border border-[#243352] bg-[#0B1120] px-3 py-2 text-sm text-[#F1F5F9]"
-            >
-              <option value={lead.status}>{lead.status}</option>
-              {leadStatuses
-                .filter((status) => status !== lead.status)
-                .map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-            </select>
-          </div>
-        ))}
+        {leads.map((lead) => {
+          const allowed = nextAllowedStatuses(lead.status)
+          const isLoss = lead.status === 'Perdido'
+          return (
+            <div key={lead.id} className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+              <span className="font-medium text-[#F1F5F9]">
+                {lead.name} — {lead.status}
+              </span>
+              <label className="sr-only" htmlFor={`status-${lead.id}`}>
+                Novo status do lead
+              </label>
+              <select
+                id={`status-${lead.id}`}
+                value={lead.status}
+                disabled={isSaving || !hasPermission('leads.update') || isFinalStatus(lead.status)}
+                onChange={(event) => void handleStatusChange(lead, event.target.value)}
+                className="rounded-lg border border-[#243352] bg-[#0B1120] px-3 py-2 text-sm text-[#F1F5F9]"
+              >
+                <option value={lead.status}>{lead.status}</option>
+                {allowed
+                  .filter((status) => status !== lead.status)
+                  .map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+              </select>
+              {isLoss && (
+                <span className="text-xs text-[#94A3B8]">Motivo: {lead.loss_reason || '—'}</span>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
