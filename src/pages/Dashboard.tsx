@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import AccessControlPanel from '@/components/AccessControlPanel'
+import FunnelDictionaryPanel from '@/components/FunnelDictionaryPanel'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -119,6 +120,8 @@ export default function Dashboard() {
         </div>
 
         <AccessControlPanel />
+
+        <FunnelDictionaryPanel />
 
         {/* Recent leads table preview */}
         <div className="rounded-2xl bg-[#111A2C] border border-[#243352] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.25)] space-y-4">

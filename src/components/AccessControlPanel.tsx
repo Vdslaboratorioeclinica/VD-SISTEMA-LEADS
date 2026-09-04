@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
 import LeadEntryPanel from '@/components/LeadEntryPanel'
 import { leadFieldDictionary, leadInitialStatus, leadOrigins } from '@/data/leadDictionary'
+import { funnelStates } from '@/data/funnelDictionary'
 import { useAuth } from '@/context/AuthContext'
 import {
   listSyntheticLeads,
@@ -20,7 +21,7 @@ import {
 } from '@/services/audit'
 import { registerFirstResponse } from '@/services/accessFixtures'
 
-const leadStatuses = ['Novo', 'Em atendimento', 'Convertido', 'Perdido']
+const leadStatuses = funnelStates
 
 export default function AccessControlPanel() {
   const { user, profile, hasPermission } = useAuth()
