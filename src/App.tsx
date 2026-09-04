@@ -11,11 +11,14 @@ import Dashboard from './pages/Dashboard'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 
-class AppErrorBoundary extends React.Component<React.PropsWithChildren, { hasError: boolean }> {
-  state = { hasError: false }
+class AppErrorBoundary extends React.Component<
+  React.PropsWithChildren,
+  { hasError: boolean; message: string }
+> {
+  state = { hasError: false, message: '' }
 
-  static getDerivedStateFromError() {
-    return { hasError: true }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, message: error.message }
   }
 
   componentDidCatch(error: Error) {
@@ -35,6 +38,11 @@ class AppErrorBoundary extends React.Component<React.PropsWithChildren, { hasErr
               Atualize a página. Se o problema persistir, informe o horário e a etapa em que
               ocorreu.
             </p>
+            {this.state.message && (
+              <p className="mt-3 rounded-lg bg-[#0B1120] p-3 text-xs text-rose-200" role="status">
+                Detalhe técnico: {this.state.message}
+              </p>
+            )}
             <button
               type="button"
               className="mt-4 rounded-lg bg-[#10B981] px-4 py-2 text-sm font-medium text-[#06251A]"
