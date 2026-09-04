@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Check, Loader2, ShieldAlert, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
 import LeadEntryPanel from '@/components/LeadEntryPanel'
 import { leadFieldDictionary, leadInitialStatus, leadOrigins } from '@/data/leadDictionary'
