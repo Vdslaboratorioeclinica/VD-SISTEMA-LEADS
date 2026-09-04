@@ -79,10 +79,14 @@ export default function LeadEntryPanel({
       ) {
         throw new Error('Informe uma justificativa com pelo menos 5 caracteres.')
       }
-      const lead = await createLead(form, {
-        linkedLeadId: duplicateChoice === 'linked' ? duplicates[0]?.id : undefined,
-        newJustification: duplicateChoice === 'new_justified' ? newJustification : undefined,
-      })
+      const resolution =
+        possibleDuplicates.length > 0
+          ? {
+              linkedLeadId: duplicateChoice === 'linked' ? duplicates[0]?.id : undefined,
+              newJustification: duplicateChoice === 'new_justified' ? newJustification : undefined,
+            }
+          : undefined
+      const lead = await createLead(form, resolution)
       await createAuditEvent({
         actorId: user.id,
         actorEmail: user.email as string,
