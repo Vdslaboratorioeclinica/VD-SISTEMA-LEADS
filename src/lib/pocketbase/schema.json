@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T00:15:01.447Z",
+  "generatedAt": "2026-09-04T09:15:50.053Z",
   "collections": [
     {
       "name": "users",
@@ -29,14 +29,29 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
+        },
+        {
+          "name": "profile",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         }
       ],
       "indexes": [
@@ -78,28 +93,38 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         },
         {
           "name": "status",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Ativo", "Desativado"]
+          "selectValues": [
+            "Ativo",
+            "Desativado"
+          ]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         }
       ],
       "indexes": []
@@ -144,7 +169,12 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Novo", "Em atendimento", "Convertido", "Perdido"]
+          "selectValues": [
+            "Novo",
+            "Em atendimento",
+            "Convertido",
+            "Perdido"
+          ]
         },
         {
           "name": "data_class",
@@ -157,17 +187,122 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         }
       ],
       "indexes": []
+    },
+    {
+      "name": "audit_events",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.profile = 'Gestor'",
+        "view": "@request.auth.profile = 'Gestor'",
+        "create": "@request.auth.id != ''",
+        "update": null,
+        "delete": null
+      },
+      "fields": [
+        {
+          "name": "actor_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "actor_email",
+          "type": "email",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "actor_profile",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
+        },
+        {
+          "name": "action",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "lead.status_changed",
+            "lead.contact_changed",
+            "permission.denied"
+          ]
+        },
+        {
+          "name": "entity",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "entity_id",
+          "type": "text",
+          "required": true,
+          "system": false
+        },
+        {
+          "name": "previous_value",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "new_value",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "result",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "success",
+            "denied"
+          ]
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onCreate"
+          ]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": [
+            "onUpdate"
+          ]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_audit_events_created ON audit_events (created DESC)"
+      ]
     }
   ]
 }
