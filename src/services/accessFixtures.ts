@@ -156,13 +156,19 @@ export async function registerFirstResponse(
   if (lead.contingency_mode)
     throw new Error('Lead em contingência deve ser reconciliado pela operação.')
   const intakeAt = new Date(lead.intake_at || lead.created)
+  if (Number.isNaN(intakeAt.getTime()) || Number.isNaN(responseAt.getTime()))
+    throw new Error('Não foi possível calcular o horário da primeira resposta.')
   const duration = Math.max(0, Math.floor((responseAt.getTime() - intakeAt.getTime()) / 1000))
-  return pb.collection('leads').update<PersistedLead>(lead.id, {
-    first_response_at: responseAt.toISOString(),
-    first_response_duration_seconds: duration,
-    sla_status: duration <= 300 ? 'atendido_no_prazo' : 'estourado',
-    status: lead.status === 'Novo' ? 'Em atendimento' : lead.status,
-  })
+  try {
+    return await pb.collection('leads').update<PersistedLead>(lead.id, {
+      first_response_at: responseAt.toISOString(),
+      first_response_duration_seconds: duration,
+      sla_status: duration <= 300 ? 'atendido_no_prazo' : 'estourado',
+    })
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : 'erro de validação do backend'
+    throw new Error(`Não foi possível registrar a primeira resposta: ${detail}`)
+  }
 }
 
 export async function archiveLead(leadId: string, reason: string): Promise<PersistedLead> {
