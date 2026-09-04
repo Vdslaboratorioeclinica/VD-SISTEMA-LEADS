@@ -53,7 +53,8 @@ export default function LeadEntryPanel({
     setError(null)
     setNotice(null)
     try {
-      const possibleDuplicates = await findPossibleDuplicates(form.phone, form.email)
+      const possibleDuplicates =
+        duplicates.length > 0 ? duplicates : await findPossibleDuplicates(form.phone, form.email)
       if (possibleDuplicates.length > 0 && !duplicateChoice) {
         setDuplicates(possibleDuplicates)
         if (user && profile)
@@ -104,7 +105,7 @@ export default function LeadEntryPanel({
         action: duplicateChoice === 'linked' ? 'lead.linked' : 'lead.new_justified',
         entity: 'lead',
         entityId: lead.id,
-        newValue: duplicateChoice === 'linked' ? duplicates[0]?.id : newJustification,
+        newValue: duplicateChoice === 'linked' ? possibleDuplicates[0]?.id : newJustification,
         result: 'success',
       })
       onCreated(lead)
