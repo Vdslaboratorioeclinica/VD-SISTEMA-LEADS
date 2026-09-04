@@ -148,6 +148,23 @@ export async function createLead(
   })
 }
 
+export async function registerFirstResponse(
+  lead: PersistedLead,
+  responseAt = new Date(),
+): Promise<PersistedLead> {
+  if (lead.first_response_at) throw new Error('A primeira resposta deste lead já foi registrada.')
+  if (lead.contingency_mode)
+    throw new Error('Lead em contingência deve ser reconciliado pela operação.')
+  const intakeAt = new Date(lead.intake_at || lead.created)
+  const duration = Math.max(0, Math.floor((responseAt.getTime() - intakeAt.getTime()) / 1000))
+  return pb.collection('leads').update<PersistedLead>(lead.id, {
+    first_response_at: responseAt.toISOString(),
+    first_response_duration_seconds: duration,
+    sla_status: duration <= 300 ? 'atendido_no_prazo' : 'estourado',
+    status: lead.status === 'Novo' ? 'Em atendimento' : lead.status,
+  })
+}
+
 export async function archiveLead(leadId: string, reason: string): Promise<PersistedLead> {
   const trimmed = reason.trim()
   if (trimmed.length < 5)

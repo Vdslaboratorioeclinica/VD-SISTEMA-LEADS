@@ -17,6 +17,7 @@ import {
   updateLeadStatusWithAudit,
   type AuditEvent,
 } from '@/services/audit'
+import { registerFirstResponse } from '@/services/accessFixtures'
 
 const leadStatuses = ['Novo', 'Em atendimento', 'Convertido', 'Perdido']
 
@@ -75,6 +76,36 @@ export default function AccessControlPanel() {
       await reloadAudit()
     } catch {
       setError('Não foi possível salvar e auditar a alteração; o valor anterior foi preservado.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  async function handleFirstResponse(lead: PersistedLead) {
+    if (!user || !profile || !hasPermission('leads.update')) return
+    setIsSaving(true)
+    setError(null)
+    setNotice(null)
+    try {
+      const updated = await registerFirstResponse(lead)
+      setLeads((current) => current.map((item) => (item.id === lead.id ? updated : item)))
+      await createAuditEvent({
+        actorId: user.id,
+        actorEmail: user.email as string,
+        actorProfile: profile,
+        action: 'lead.contact_changed',
+        entity: 'lead',
+        entityId: lead.id,
+        previousValue: 'sem primeira resposta',
+        newValue: `${updated.first_response_duration_seconds}s`,
+        result: 'success',
+      })
+      setNotice(`Primeira resposta registrada em ${updated.first_response_duration_seconds}s.`)
+      await reloadAudit()
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : 'Não foi possível registrar a primeira resposta.',
+      )
     } finally {
       setIsSaving(false)
     }
@@ -191,6 +222,48 @@ export default function AccessControlPanel() {
           Regra operacional: resposta em até 5 minutos atende o SLA; acima disso vira exceção.
           Cadastro em contingência preserva a entrada e a origem.
         </p>
+        <div
+          className="mt-4 rounded-lg border border-[#10B981]/20 bg-[#0B1120]/50 p-4"
+          aria-label="Fila operacional de leads"
+        >
+          <h4 className="font-medium text-[#F1F5F9]">Fila operacional</h4>
+          <p className="mt-1 text-xs text-[#94A3B8]">
+            Leads sem primeira resposta aparecem primeiro para atendimento.
+          </p>
+          <div className="mt-3 space-y-2">
+            {[...leads]
+              .filter(
+                (lead) =>
+                  !lead.first_response_at &&
+                  !lead.contingency_mode &&
+                  lead.record_state !== 'archived',
+              )
+              .sort(
+                (a, b) =>
+                  new Date(a.intake_at || a.created).getTime() -
+                  new Date(b.intake_at || b.created).getTime(),
+              )
+              .map((lead) => (
+                <div
+                  key={lead.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#243352] p-3 text-xs"
+                >
+                  <span className="text-[#CBD5E1]">
+                    <strong className="text-[#F1F5F9]">{lead.name}</strong> · {lead.origin} ·{' '}
+                    {lead.responsible || 'Não atribuído'}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isSaving || !hasPermission('leads.update')}
+                    onClick={() => void handleFirstResponse(lead)}
+                  >
+                    Registrar primeira resposta
+                  </Button>
+                </div>
+              ))}
+          </div>
+        </div>
         <div className="mt-4 space-y-3">
           {leads
             .filter((lead) => lead.synthetic_id.startsWith('LEAD-SLA-'))
