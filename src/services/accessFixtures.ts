@@ -127,7 +127,7 @@ export async function createLead(
   const justification = options?.newJustification?.trim() || ''
   if (options?.linkedLeadId && justification)
     throw new Error('Escolha vincular ou justificar novo, não ambos.')
-  if (options && !options.linkedLeadId && !justification)
+  if (options && !options.linkedLeadId && !justification && !options.contingencyMode)
     throw new Error('Informe a justificativa para criar um novo lead.')
   return pb.collection('leads').create<PersistedLead>({
     synthetic_id: `LEAD-MANUAL-${Date.now()}`,
