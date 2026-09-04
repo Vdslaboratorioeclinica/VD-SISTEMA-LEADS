@@ -56,10 +56,27 @@ export default function LeadEntryPanel({
     setError(null)
     setNotice(null)
     try {
-      const lead = await createLead(form, {
-        linkedLeadId: choice === 'linked' ? duplicates[0]?.id : undefined,
-        newJustification: choice === 'new_justified' ? newJustification : undefined,
-      })
+      if (choice === 'linked') {
+        const existingLead = duplicates[0]
+        if (!existingLead) throw new Error('Nenhum lead existente disponível para vínculo.')
+        await createAuditEvent({
+          actorId: user.id,
+          actorEmail: user.email as string,
+          actorProfile: profile,
+          action: 'lead.linked',
+          entity: 'lead',
+          entityId: existingLead.id,
+          newValue: existingLead.id,
+          result: 'success',
+        })
+        setForm(initialForm)
+        setDuplicates([])
+        setDuplicateChoice(null)
+        setNewJustification('')
+        setNotice('Entrada vinculada ao lead existente; nenhum duplicado foi criado.')
+        return
+      }
+      const lead = await createLead(form, { newJustification })
       await createAuditEvent({
         actorId: user.id,
         actorEmail: user.email as string,
@@ -74,10 +91,10 @@ export default function LeadEntryPanel({
         actorId: user.id,
         actorEmail: user.email as string,
         actorProfile: profile,
-        action: choice === 'linked' ? 'lead.linked' : 'lead.new_justified',
+        action: 'lead.new_justified',
         entity: 'lead',
         entityId: lead.id,
-        newValue: choice === 'linked' ? duplicates[0]?.id : newJustification,
+        newValue: newJustification,
         result: 'success',
       })
       onCreated(lead)
@@ -85,11 +102,7 @@ export default function LeadEntryPanel({
       setDuplicates([])
       setDuplicateChoice(null)
       setNewJustification('')
-      setNotice(
-        choice === 'linked'
-          ? 'Lead vinculado ao registro existente.'
-          : 'Novo lead criado com justificativa registrada.',
-      )
+      setNotice('Novo lead criado com justificativa registrada.')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível concluir a resolução.')
     } finally {
