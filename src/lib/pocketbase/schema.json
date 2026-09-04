@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T11:27:21.690Z",
+  "generatedAt": "2026-09-04T13:33:42.539Z",
   "collections": [
     {
       "name": "users",
@@ -29,21 +29,29 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         },
         {
           "name": "profile",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         }
       ],
       "indexes": [
@@ -85,28 +93,38 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         },
         {
           "name": "status",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Ativo", "Desativado"]
+          "selectValues": [
+            "Ativo",
+            "Desativado"
+          ]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         }
       ],
       "indexes": []
@@ -151,7 +169,12 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Novo", "Em atendimento", "Convertido", "Perdido"]
+          "selectValues": [
+            "Novo",
+            "Em atendimento",
+            "Convertido",
+            "Perdido"
+          ]
         },
         {
           "name": "data_class",
@@ -164,21 +187,29 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         },
         {
           "name": "service",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Citologia", "Papanicolau", "Outro"]
+          "selectValues": [
+            "Citologia",
+            "Papanicolau",
+            "Outro"
+          ]
         },
         {
           "name": "need",
@@ -203,7 +234,11 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["pending", "linked", "new_justified"]
+          "selectValues": [
+            "pending",
+            "linked",
+            "new_justified"
+          ]
         },
         {
           "name": "linked_lead_id",
@@ -222,11 +257,49 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["active", "archived"]
+          "selectValues": [
+            "active",
+            "archived"
+          ]
         },
         {
           "name": "archive_reason",
           "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "intake_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "first_response_at",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "first_response_duration_seconds",
+          "type": "number",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "sla_status",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "atendido_no_prazo",
+            "estourado",
+            "pendente_contingencia"
+          ]
+        },
+        {
+          "name": "contingency_mode",
+          "type": "bool",
           "required": false,
           "system": false
         }
@@ -261,7 +334,10 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         },
         {
           "name": "action",
@@ -308,24 +384,33 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["success", "denied"]
+          "selectValues": [
+            "success",
+            "denied"
+          ]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         }
       ],
-      "indexes": ["CREATE INDEX idx_audit_events_created ON audit_events (created DESC)"]
+      "indexes": [
+        "CREATE INDEX idx_audit_events_created ON audit_events (created DESC)"
+      ]
     }
   ]
 }

@@ -180,6 +180,75 @@ export default function AccessControlPanel() {
 
       <LeadEntryPanel onCreated={(lead) => setLeads((current) => [lead, ...current])} />
 
+      <div
+        className="rounded-xl border border-[#243352] bg-[#111A2C] p-5"
+        aria-labelledby="sla-fixtures-title"
+      >
+        <h3 id="sla-fixtures-title" className="font-semibold text-[#F1F5F9]">
+          Fixtures e SLA de primeira resposta
+        </h3>
+        <p className="mt-1 text-xs text-[#94A3B8]">
+          Regra operacional: resposta em até 5 minutos atende o SLA; acima disso vira exceção.
+          Cadastro em contingência preserva a entrada e a origem.
+        </p>
+        <div className="mt-4 space-y-3">
+          {leads
+            .filter((lead) => lead.synthetic_id.startsWith('LEAD-SLA-'))
+            .map((lead) => {
+              const duration = lead.first_response_duration_seconds ?? 0
+              const durationLabel = lead.first_response_at
+                ? `${Math.floor(duration / 60)}min ${duration % 60}s`
+                : 'Sem resposta'
+              const statusLabel =
+                lead.sla_status === 'atendido_no_prazo'
+                  ? 'Atendido no prazo'
+                  : lead.sla_status === 'estourado'
+                    ? 'Exceção — SLA estourado'
+                    : 'Pendente em contingência'
+              return (
+                <article
+                  key={lead.id}
+                  className="rounded-lg border border-[#243352] bg-[#0B1120]/60 p-4 text-sm"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <strong className="text-[#F1F5F9]">{lead.name}</strong>
+                    <span
+                      className={
+                        lead.sla_status === 'atendido_no_prazo'
+                          ? 'text-[#10B981]'
+                          : 'text-amber-300'
+                      }
+                    >
+                      {statusLabel}
+                    </span>
+                  </div>
+                  <div className="mt-2 grid gap-2 text-xs text-[#CBD5E1] sm:grid-cols-2 lg:grid-cols-4">
+                    <span>
+                      <strong className="text-[#94A3B8]">Origem:</strong> {lead.origin}
+                    </span>
+                    <span>
+                      <strong className="text-[#94A3B8]">Responsável:</strong>{' '}
+                      {lead.responsible || 'Não atribuído'}
+                    </span>
+                    <span>
+                      <strong className="text-[#94A3B8]">Entrada:</strong>{' '}
+                      {lead.intake_at ? new Date(lead.intake_at).toLocaleString('pt-BR') : '—'}
+                    </span>
+                    <span>
+                      <strong className="text-[#94A3B8]">Primeira resposta:</strong> {durationLabel}
+                    </span>
+                  </div>
+                  {lead.contingency_mode && (
+                    <p className="mt-2 text-xs text-blue-200">
+                      Contingência manual: horário de entrada preservado.
+                    </p>
+                  )}
+                </article>
+              )
+            })}
+        </div>
+      </div>
+
       <div className="rounded-xl border border-[#243352] bg-[#111A2C] p-5">
         <h3 className="font-semibold text-[#F1F5F9]">Dicionário homologado de leads</h3>
         <p className="mt-1 text-xs text-[#94A3B8]">

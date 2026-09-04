@@ -29,6 +29,11 @@ export type PersistedLead = RecordModel & {
   new_justification?: string
   record_state: RecordState
   archive_reason?: string
+  intake_at?: string
+  first_response_at?: string
+  first_response_duration_seconds?: number
+  sla_status?: 'atendido_no_prazo' | 'estourado' | 'pendente_contingencia'
+  contingency_mode?: boolean
 }
 
 export type LeadInput = {
