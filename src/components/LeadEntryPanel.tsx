@@ -35,6 +35,7 @@ export default function LeadEntryPanel({
   const [results, setResults] = useState<PersistedLead[]>([])
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [contingencyMode, setContingencyMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [duplicates, setDuplicates] = useState<PersistedLead[]>([])
@@ -78,7 +79,7 @@ export default function LeadEntryPanel({
         setNotice('Entrada vinculada ao lead existente; nenhum duplicado foi criado.')
         return
       }
-      const lead = await createLead(form, { newJustification })
+      const lead = await createLead(form, { newJustification, contingencyMode })
       await createAuditEvent({
         actorId: user.id,
         actorEmail: user.email as string,
@@ -104,7 +105,12 @@ export default function LeadEntryPanel({
       setDuplicates([])
       setDuplicateChoice(null)
       setNewJustification('')
-      setNotice('Novo lead criado com justificativa registrada.')
+      setContingencyMode(false)
+      setNotice(
+        contingencyMode
+          ? 'Cadastro manual em contingência registrado; horário e origem preservados.'
+          : 'Novo lead criado com justificativa registrada.',
+      )
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível concluir a resolução.')
     } finally {
@@ -147,10 +153,11 @@ export default function LeadEntryPanel({
         throw new Error('Informe uma justificativa com pelo menos 5 caracteres.')
       }
       const resolution =
-        possibleDuplicates.length > 0
+        possibleDuplicates.length > 0 || contingencyMode
           ? {
               linkedLeadId: duplicateChoice === 'linked' ? duplicates[0]?.id : undefined,
               newJustification: duplicateChoice === 'new_justified' ? newJustification : undefined,
+              contingencyMode,
             }
           : undefined
       const lead = await createLead(form, resolution)
@@ -179,7 +186,12 @@ export default function LeadEntryPanel({
       setDuplicates([])
       setDuplicateChoice(null)
       setNewJustification('')
-      setNotice(`Lead criado com telefone normalizado: ${lead.phone}. Estado: ${lead.status}.`)
+      setContingencyMode(false)
+      setNotice(
+        lead.contingency_mode
+          ? 'Cadastro manual em contingência registrado; horário e origem preservados.'
+          : `Lead criado com telefone normalizado: ${lead.phone}. Estado: ${lead.status}.`,
+      )
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível criar o lead.')
     } finally {
@@ -288,6 +300,16 @@ export default function LeadEntryPanel({
               className={fieldClass}
             />
           </label>
+          <label className="flex items-center gap-2 text-xs text-[#CBD5E1] sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={contingencyMode}
+              onChange={(event) => setContingencyMode(event.target.checked)}
+              className="h-4 w-4 accent-[#10B981]"
+            />
+            Cadastro manual em contingência — preservar horário e origem
+          </label>
+          =======
         </div>
         {duplicates.length > 0 && (
           <div

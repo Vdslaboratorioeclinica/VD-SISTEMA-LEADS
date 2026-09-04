@@ -121,7 +121,7 @@ export async function linkLead(leadId: string, input: LeadInput): Promise<Persis
 
 export async function createLead(
   input: LeadInput,
-  options?: { linkedLeadId?: string; newJustification?: string },
+  options?: { linkedLeadId?: string; newJustification?: string; contingencyMode?: boolean },
 ): Promise<PersistedLead> {
   const valid = validateLeadInput(input)
   const justification = options?.newJustification?.trim() || ''
@@ -145,6 +145,11 @@ export async function createLead(
     new_justification: justification,
     record_state: 'active',
     archive_reason: '',
+    intake_at: new Date().toISOString(),
+    first_response_at: '',
+    first_response_duration_seconds: 0,
+    sla_status: options?.contingencyMode ? 'pendente_contingencia' : undefined,
+    contingency_mode: Boolean(options?.contingencyMode),
   })
 }
 

@@ -231,6 +231,14 @@ export default function AccessControlPanel() {
           <p className="mt-1 text-xs text-[#94A3B8]">
             Leads sem primeira resposta aparecem primeiro para atendimento.
           </p>
+          {leads.some((lead) => lead.sla_status === 'estourado' && !lead.first_response_at) && (
+            <div
+              className="mt-3 rounded-lg border border-rose-400/40 bg-rose-400/10 p-3 text-sm text-rose-200"
+              role="alert"
+            >
+              Alerta: existem leads sem primeira resposta com SLA estourado.
+            </div>
+          )}
           <div className="mt-3 space-y-2">
             {[...leads]
               .filter(
