@@ -1,17 +1,9 @@
 import React from 'react'
-import {
-  Crosshair,
-  LogOut,
-  Users,
-  Target,
-  TrendingUp,
-  Building,
-  CheckCircle2,
-  Calendar,
-} from 'lucide-react'
+import { Crosshair, LogOut, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import AccessControlPanel from '@/components/AccessControlPanel'
 import FunnelDictionaryPanel from '@/components/FunnelDictionaryPanel'
+import TraceabilityPanel from '@/components/TraceabilityPanel'
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -61,125 +53,21 @@ export default function Dashboard() {
               Sessão iniciada com sucesso via PocketBase
             </div>
             <h1 className="text-3xl font-bold text-white tracking-tight">
-              Painel Geral de Oportunidades
+              Painel de Gestão de Atendimento VDS
             </h1>
             <p className="text-sm md:text-base text-[#94A3B8]">
-              Bem-vindo ao sistema de Gestão de Leads da LeadsPro. Centralize seus contatos
-              comerciais e monitore suas conversões em tempo real.
+              Central de conversão de leads do laboratório VDS. Acompanhe cobertura de status,
+              primeira resposta, próxima ação e exceções do funil.
             </p>
           </div>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-xl bg-[#111A2C] border border-[#243352] p-5 shadow-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">Total de Leads</span>
-              <Users className="h-4 w-4 text-[#10B981]" />
-            </div>
-            <div className="text-2xl font-bold text-[#F1F5F9]">1.428</div>
-            <p className="text-xs text-[#10B981] mt-1 flex items-center gap-1 font-medium">
-              <TrendingUp className="h-3 w-3" /> +14.2% este mês
-            </p>
-          </div>
-
-          <div className="rounded-xl bg-[#111A2C] border border-[#243352] p-5 shadow-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">
-                Qualificados (MQL)
-              </span>
-              <Target className="h-4 w-4 text-blue-400" />
-            </div>
-            <div className="text-2xl font-bold text-[#F1F5F9]">482</div>
-            <p className="text-xs text-[#94A3B8] mt-1 font-medium">33.7% taxa de qualificação</p>
-          </div>
-
-          <div className="rounded-xl bg-[#111A2C] border border-[#243352] p-5 shadow-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">
-                Oportunidades SQL
-              </span>
-              <Building className="h-4 w-4 text-purple-400" />
-            </div>
-            <div className="text-2xl font-bold text-[#F1F5F9]">126</div>
-            <p className="text-xs text-[#10B981] mt-1 flex items-center gap-1 font-medium">
-              <TrendingUp className="h-3 w-3" /> 18 propostas ativas
-            </p>
-          </div>
-
-          <div className="rounded-xl bg-[#111A2C] border border-[#243352] p-5 shadow-sm">
-            <div className="flex items-center justify-between text-[#94A3B8] mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">
-                Valor em Pipeline
-              </span>
-              <TrendingUp className="h-4 w-4 text-amber-400" />
-            </div>
-            <div className="text-2xl font-bold text-[#F1F5F9]">R$ 840.500</div>
-            <p className="text-xs text-[#94A3B8] mt-1 font-medium">Ciclo médio de 24 dias</p>
-          </div>
-        </div>
+        {/* Real traceability panel (T1.15) — replaces the mock metrics grid */}
+        <TraceabilityPanel />
 
         <AccessControlPanel />
 
         <FunnelDictionaryPanel />
-
-        {/* Recent leads table preview */}
-        <div className="rounded-2xl bg-[#111A2C] border border-[#243352] p-6 shadow-[0_8px_24px_rgba(0,0,0,0.25)] space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-[#F1F5F9]">Contatos Recentes</h2>
-              <p className="text-xs text-[#94A3B8]">Leads capturados nas últimas 24 horas</p>
-            </div>
-            <span className="text-xs text-[#10B981] font-medium flex items-center gap-1">
-              <Calendar className="h-3.5 w-3.5" /> Atualizado agora
-            </span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-[#94A3B8]">
-              <thead className="border-b border-[#243352] text-xs uppercase text-[#94A3B8]/80 font-medium">
-                <tr>
-                  <th className="py-3 px-4">Lead</th>
-                  <th className="py-3 px-4">Empresa</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Valor Estimado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#243352]/60">
-                <tr className="hover:bg-[#1A2537]/50 transition-colors">
-                  <td className="py-3 px-4 text-[#F1F5F9] font-medium">Ana Martins</td>
-                  <td className="py-3 px-4">TechNova Soluções</td>
-                  <td className="py-3 px-4">
-                    <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400 font-medium">
-                      Qualificado
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-[#F1F5F9]">R$ 48.000 / ano</td>
-                </tr>
-                <tr className="hover:bg-[#1A2537]/50 transition-colors">
-                  <td className="py-3 px-4 text-[#F1F5F9] font-medium">Julio Silva</td>
-                  <td className="py-3 px-4">Mercado Livre B2B</td>
-                  <td className="py-3 px-4">
-                    <span className="rounded-md border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-400 font-medium">
-                      Proposta enviada
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-[#F1F5F9]">R$ 120.000 / ano</td>
-                </tr>
-                <tr className="hover:bg-[#1A2537]/50 transition-colors">
-                  <td className="py-3 px-4 text-[#F1F5F9] font-medium">Renata Costa</td>
-                  <td className="py-3 px-4">Startup X Logística</td>
-                  <td className="py-3 px-4">
-                    <span className="rounded-md border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-xs text-purple-400 font-medium">
-                      Em negociação
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-[#F1F5F9]">R$ 32.500 / ano</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </main>
     </div>
   )
