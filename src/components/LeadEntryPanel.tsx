@@ -46,6 +46,57 @@ export default function LeadEntryPanel({
     setError(null)
   }
 
+  async function finalizeDuplicate(choice: 'linked' | 'new_justified') {
+    if (!user || !profile || !hasPermission('leads.create')) return
+    if (choice === 'new_justified' && newJustification.trim().length < 5) {
+      setError('Informe uma justificativa com pelo menos 5 caracteres.')
+      return
+    }
+    setIsSaving(true)
+    setError(null)
+    setNotice(null)
+    try {
+      const lead = await createLead(form, {
+        linkedLeadId: choice === 'linked' ? duplicates[0]?.id : undefined,
+        newJustification: choice === 'new_justified' ? newJustification : undefined,
+      })
+      await createAuditEvent({
+        actorId: user.id,
+        actorEmail: user.email as string,
+        actorProfile: profile,
+        action: 'lead.created',
+        entity: 'lead',
+        entityId: lead.id,
+        newValue: lead.phone,
+        result: 'success',
+      })
+      await createAuditEvent({
+        actorId: user.id,
+        actorEmail: user.email as string,
+        actorProfile: profile,
+        action: choice === 'linked' ? 'lead.linked' : 'lead.new_justified',
+        entity: 'lead',
+        entityId: lead.id,
+        newValue: choice === 'linked' ? duplicates[0]?.id : newJustification,
+        result: 'success',
+      })
+      onCreated(lead)
+      setForm(initialForm)
+      setDuplicates([])
+      setDuplicateChoice(null)
+      setNewJustification('')
+      setNotice(
+        choice === 'linked'
+          ? 'Lead vinculado ao registro existente.'
+          : 'Novo lead criado com justificativa registrada.',
+      )
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Não foi possível concluir a resolução.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!user || !profile || !hasPermission('leads.create')) return
@@ -234,7 +285,7 @@ export default function LeadEntryPanel({
               <Button
                 type="button"
                 variant={duplicateChoice === 'linked' ? 'default' : 'outline'}
-                onClick={() => setDuplicateChoice('linked')}
+                onClick={() => void finalizeDuplicate('linked')}
               >
                 Vincular ao existente
               </Button>
