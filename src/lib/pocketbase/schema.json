@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T09:16:19.418Z",
+  "generatedAt": "2026-09-04T09:16:45.473Z",
   "collections": [
     {
       "name": "users",
@@ -209,7 +209,7 @@
       "apiRules": {
         "list": "@request.auth.profile = 'Gestor'",
         "view": "@request.auth.profile = 'Gestor'",
-        "create": "@request.auth.id != ''",
+        "create": "@request.auth.id != '' && actor_id = @request.auth.id && actor_email = @request.auth.email && actor_profile = @request.auth.profile",
         "update": null,
         "delete": null
       },
