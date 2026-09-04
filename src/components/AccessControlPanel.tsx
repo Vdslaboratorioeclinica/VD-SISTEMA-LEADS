@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Loader2, ShieldAlert, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
 import { permissionDefinitions, permissionMatrix } from '@/data/accessControl'
+import LeadEntryPanel from '@/components/LeadEntryPanel'
 import { leadFieldDictionary, leadInitialStatus, leadOrigins } from '@/data/leadDictionary'
 import { useAuth } from '@/context/AuthContext'
 import {
@@ -176,6 +177,8 @@ export default function AccessControlPanel() {
           </article>
         ))}
       </div>
+
+      <LeadEntryPanel onCreated={(lead) => setLeads((current) => [lead, ...current])} />
 
       <div className="rounded-xl border border-[#243352] bg-[#111A2C] p-5">
         <h3 className="font-semibold text-[#F1F5F9]">Dicionário homologado de leads</h3>

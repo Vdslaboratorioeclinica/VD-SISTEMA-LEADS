@@ -2,7 +2,11 @@ import type { RecordModel } from 'pocketbase'
 import pb from '@/lib/pocketbase/client'
 import type { AccessProfile, PermissionKey } from '@/data/accessControl'
 
-export type AuditAction = 'lead.status_changed' | 'lead.contact_changed' | 'permission.denied'
+export type AuditAction =
+  | 'lead.created'
+  | 'lead.status_changed'
+  | 'lead.contact_changed'
+  | 'permission.denied'
 export type AuditResult = 'success' | 'denied'
 
 export type AuditEvent = RecordModel & {
