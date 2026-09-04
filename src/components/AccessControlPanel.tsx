@@ -393,6 +393,7 @@ export default function AccessControlPanel() {
         {leads.map((lead) => {
           const allowed = nextAllowedStatuses(lead.status)
           const isLoss = lead.status === 'Perdido'
+          const isPendingLoss = pendingLossLead === lead.id
           return (
             <div key={lead.id} className="mt-4 flex flex-wrap items-center gap-3 text-sm">
               <span className="font-medium text-[#F1F5F9]">
@@ -405,7 +406,15 @@ export default function AccessControlPanel() {
                 id={`status-${lead.id}`}
                 value={lead.status}
                 disabled={isSaving || !hasPermission('leads.update') || isFinalStatus(lead.status)}
-                onChange={(event) => void handleStatusChange(lead, event.target.value)}
+                onChange={(event) => {
+                  const next = event.target.value
+                  if (next === 'Perdido') {
+                    setPendingLossLead(lead.id)
+                  } else {
+                    setPendingLossLead(null)
+                    void handleStatusChange(lead, next)
+                  }
+                }}
                 className="rounded-lg border border-[#243352] bg-[#0B1120] px-3 py-2 text-sm text-[#F1F5F9]"
               >
                 <option value={lead.status}>{lead.status}</option>
@@ -419,6 +428,42 @@ export default function AccessControlPanel() {
               </select>
               {isLoss && (
                 <span className="text-xs text-[#94A3B8]">Motivo: {lead.loss_reason || '—'}</span>
+              )}
+              {isPendingLoss && (
+                <span className="flex flex-wrap items-center gap-2">
+                  <label className="sr-only" htmlFor={`loss-${lead.id}`}>
+                    Motivo de perda
+                  </label>
+                  <select
+                    id={`loss-${lead.id}`}
+                    value={lossReasonByLead[lead.id] || ''}
+                    onChange={(event) =>
+                      setLossReasonByLead((current) => ({
+                        ...current,
+                        [lead.id]: event.target.value,
+                      }))
+                    }
+                    className="rounded-lg border border-rose-400/40 bg-[#0B1120] px-3 py-2 text-sm text-[#F1F5F9]"
+                  >
+                    <option value="">Selecione o motivo…</option>
+                    {lossReasonOptions().map((reason) => (
+                      <option key={reason} value={reason}>
+                        {reason}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isSaving || !lossReasonByLead[lead.id]}
+                    onClick={() => {
+                      setPendingLossLead(null)
+                      void handleStatusChange(lead, 'Perdido')
+                    }}
+                  >
+                    Confirmar perda
+                  </Button>
+                </span>
               )}
             </div>
           )
