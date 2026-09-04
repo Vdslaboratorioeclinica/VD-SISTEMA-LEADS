@@ -8,6 +8,7 @@ import {
   archiveLead,
   createLead,
   findPossibleDuplicates,
+  linkLead,
   searchLeads,
   type LeadInput,
   type PersistedLead,
@@ -59,14 +60,15 @@ export default function LeadEntryPanel({
       if (choice === 'linked') {
         const existingLead = duplicates[0]
         if (!existingLead) throw new Error('Nenhum lead existente disponível para vínculo.')
+        const linkedLead = await linkLead(existingLead.id, form)
         await createAuditEvent({
           actorId: user.id,
           actorEmail: user.email as string,
           actorProfile: profile,
           action: 'lead.linked',
           entity: 'lead',
-          entityId: existingLead.id,
-          newValue: existingLead.id,
+          entityId: linkedLead.id,
+          newValue: linkedLead.id,
           result: 'success',
         })
         setForm(initialForm)
@@ -299,6 +301,7 @@ export default function LeadEntryPanel({
                 type="button"
                 variant={duplicateChoice === 'linked' ? 'default' : 'outline'}
                 onClick={() => void finalizeDuplicate('linked')}
+                disabled={isSaving}
               >
                 Vincular ao existente
               </Button>
@@ -306,6 +309,7 @@ export default function LeadEntryPanel({
                 type="button"
                 variant={duplicateChoice === 'new_justified' ? 'default' : 'outline'}
                 onClick={() => setDuplicateChoice('new_justified')}
+                disabled={isSaving}
               >
                 Criar novo com justificativa
               </Button>

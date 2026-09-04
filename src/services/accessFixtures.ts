@@ -104,6 +104,16 @@ export async function findPossibleDuplicates(
   })
 }
 
+export async function linkLead(leadId: string, input: LeadInput): Promise<PersistedLead> {
+  const valid = validateLeadInput(input)
+  return pb.collection('leads').update<PersistedLead>(leadId, {
+    duplicate_resolution: 'linked',
+    linked_lead_id: leadId,
+    new_justification: '',
+    origin: valid.origin,
+  })
+}
+
 export async function createLead(
   input: LeadInput,
   options?: { linkedLeadId?: string; newJustification?: string },
