@@ -91,11 +91,17 @@ export async function findPossibleDuplicates(
   email?: string,
 ): Promise<PersistedLead[]> {
   const normalizedPhone = normalizePhone(phone)
-  const filters = [`phone = ${quoteFilter(normalizedPhone)}`]
-  if (email?.trim()) filters.push(`email = ${quoteFilter(email.trim())}`)
-  return pb
-    .collection('leads')
-    .getFullList<PersistedLead>({ filter: filters.join(' || '), sort: '-created' })
+  const candidates = await pb.collection('leads').getFullList<PersistedLead>({ sort: '-created' })
+  return candidates.filter((lead) => {
+    try {
+      return (
+        normalizePhone(lead.phone) === normalizedPhone ||
+        Boolean(email?.trim() && lead.email?.trim() === email.trim())
+      )
+    } catch {
+      return Boolean(email?.trim() && lead.email?.trim() === email.trim())
+    }
+  })
 }
 
 export async function createLead(
