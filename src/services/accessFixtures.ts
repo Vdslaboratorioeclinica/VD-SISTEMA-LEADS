@@ -10,6 +10,9 @@ export type PersistedUser = RecordModel & {
   status: 'Ativo' | 'Desativado'
 }
 
+export type DuplicateResolution = 'pending' | 'linked' | 'new_justified'
+export type RecordState = 'active' | 'archived'
+
 export type PersistedLead = RecordModel & {
   synthetic_id: string
   name: string
@@ -21,6 +24,11 @@ export type PersistedLead = RecordModel & {
   responsible?: string
   status: string
   data_class: string
+  duplicate_resolution?: DuplicateResolution
+  linked_lead_id?: string
+  new_justification?: string
+  record_state: RecordState
+  archive_reason?: string
 }
 
 export type LeadInput = {
@@ -45,9 +53,8 @@ export function validateLeadInput(input: LeadInput): LeadInput {
   const origin = input.origin.trim()
   const need = input.need.trim()
   if (!name) throw new Error('Informe o nome do lead.')
-  if (!origin || !leadOrigins.includes(origin as (typeof leadOrigins)[number])) {
+  if (!origin || !leadOrigins.includes(origin as (typeof leadOrigins)[number]))
     throw new Error('Selecione uma origem válida.')
-  }
   if (!need) throw new Error('Informe a necessidade do lead.')
   if (email && !/^\S+@\S+\.\S+$/.test(email)) throw new Error('Informe um e-mail válido.')
   return { ...input, name, email, origin, need, phone: normalizePhone(input.phone) }
@@ -79,8 +86,28 @@ export async function searchLeads(term: string): Promise<PersistedLead[]> {
     .getFullList<PersistedLead>({ filter: filters.join(' || '), sort: '-created' })
 }
 
-export async function createLead(input: LeadInput): Promise<PersistedLead> {
+export async function findPossibleDuplicates(
+  phone: string,
+  email?: string,
+): Promise<PersistedLead[]> {
+  const normalizedPhone = normalizePhone(phone)
+  const filters = [`phone = ${quoteFilter(normalizedPhone)}`]
+  if (email?.trim()) filters.push(`email = ${quoteFilter(email.trim())}`)
+  return pb
+    .collection('leads')
+    .getFullList<PersistedLead>({ filter: filters.join(' || '), sort: '-created' })
+}
+
+export async function createLead(
+  input: LeadInput,
+  options?: { linkedLeadId?: string; newJustification?: string },
+): Promise<PersistedLead> {
   const valid = validateLeadInput(input)
+  const justification = options?.newJustification?.trim() || ''
+  if (options?.linkedLeadId && justification)
+    throw new Error('Escolha vincular ou justificar novo, não ambos.')
+  if (options && !options.linkedLeadId && !justification)
+    throw new Error('Informe a justificativa para criar um novo lead.')
   return pb.collection('leads').create<PersistedLead>({
     synthetic_id: `LEAD-MANUAL-${Date.now()}`,
     name: valid.name,
@@ -92,5 +119,19 @@ export async function createLead(input: LeadInput): Promise<PersistedLead> {
     responsible: '',
     status: leadInitialStatus,
     data_class: 'synthetic',
+    duplicate_resolution: options?.linkedLeadId ? 'linked' : 'new_justified',
+    linked_lead_id: options?.linkedLeadId || '',
+    new_justification: justification,
+    record_state: 'active',
+    archive_reason: '',
   })
+}
+
+export async function archiveLead(leadId: string, reason: string): Promise<PersistedLead> {
+  const trimmed = reason.trim()
+  if (trimmed.length < 5)
+    throw new Error('Informe um motivo de arquivamento com pelo menos 5 caracteres.')
+  return pb
+    .collection('leads')
+    .update<PersistedLead>(leadId, { record_state: 'archived', archive_reason: trimmed })
 }

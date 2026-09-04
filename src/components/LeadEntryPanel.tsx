@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input'
 import { leadOrigins } from '@/data/leadDictionary'
 import { useAuth } from '@/context/AuthContext'
 import {
+  archiveLead,
   createLead,
+  findPossibleDuplicates,
   searchLeads,
   type LeadInput,
   type PersistedLead,
@@ -34,6 +36,10 @@ export default function LeadEntryPanel({
   const [notice, setNotice] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
+  const [duplicates, setDuplicates] = useState<PersistedLead[]>([])
+  const [duplicateChoice, setDuplicateChoice] = useState<'linked' | 'new_justified' | null>(null)
+  const [newJustification, setNewJustification] = useState('')
+  const [archiveReason, setArchiveReason] = useState<Record<string, string>>({})
 
   function updateField<K extends keyof LeadInput>(field: K, value: LeadInput[K]) {
     setForm((current) => ({ ...current, [field]: value }))
@@ -47,7 +53,36 @@ export default function LeadEntryPanel({
     setError(null)
     setNotice(null)
     try {
-      const lead = await createLead(form)
+      const possibleDuplicates = await findPossibleDuplicates(form.phone, form.email)
+      if (possibleDuplicates.length > 0 && !duplicateChoice) {
+        setDuplicates(possibleDuplicates)
+        if (user && profile)
+          await createAuditEvent({
+            actorId: user.id,
+            actorEmail: user.email as string,
+            actorProfile: profile,
+            action: 'lead.duplicate_detected',
+            entity: 'lead',
+            entityId: possibleDuplicates[0].id,
+            newValue: form.phone,
+            result: 'success',
+          })
+        setNotice(
+          'Possível duplicidade encontrada. Escolha vincular ao existente ou justifique a criação de um novo.',
+        )
+        return
+      }
+      if (
+        possibleDuplicates.length > 0 &&
+        duplicateChoice === 'new_justified' &&
+        newJustification.trim().length < 5
+      ) {
+        throw new Error('Informe uma justificativa com pelo menos 5 caracteres.')
+      }
+      const lead = await createLead(form, {
+        linkedLeadId: duplicateChoice === 'linked' ? duplicates[0]?.id : undefined,
+        newJustification: duplicateChoice === 'new_justified' ? newJustification : undefined,
+      })
       await createAuditEvent({
         actorId: user.id,
         actorEmail: user.email as string,
@@ -58,8 +93,21 @@ export default function LeadEntryPanel({
         newValue: lead.phone,
         result: 'success',
       })
+      await createAuditEvent({
+        actorId: user.id,
+        actorEmail: user.email as string,
+        actorProfile: profile,
+        action: duplicateChoice === 'linked' ? 'lead.linked' : 'lead.new_justified',
+        entity: 'lead',
+        entityId: lead.id,
+        newValue: duplicateChoice === 'linked' ? duplicates[0]?.id : newJustification,
+        result: 'success',
+      })
       onCreated(lead)
       setForm(initialForm)
+      setDuplicates([])
+      setDuplicateChoice(null)
+      setNewJustification('')
       setNotice(`Lead criado com telefone normalizado: ${lead.phone}. Estado: ${lead.status}.`)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível criar o lead.')
@@ -170,6 +218,40 @@ export default function LeadEntryPanel({
             />
           </label>
         </div>
+        {duplicates.length > 0 && (
+          <div
+            className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100"
+            role="alert"
+          >
+            <strong>Possível duplicidade:</strong>{' '}
+            {duplicates.map((lead) => `${lead.name} (${lead.phone})`).join(', ')}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant={duplicateChoice === 'linked' ? 'default' : 'outline'}
+                onClick={() => setDuplicateChoice('linked')}
+              >
+                Vincular ao existente
+              </Button>
+              <Button
+                type="button"
+                variant={duplicateChoice === 'new_justified' ? 'default' : 'outline'}
+                onClick={() => setDuplicateChoice('new_justified')}
+              >
+                Criar novo com justificativa
+              </Button>
+            </div>
+            {duplicateChoice === 'new_justified' && (
+              <Input
+                aria-label="Justificativa para criar novo"
+                value={newJustification}
+                onChange={(e) => setNewJustification(e.target.value)}
+                placeholder="Explique por que não é duplicado"
+                className="mt-2"
+              />
+            )}
+          </div>
+        )}
         <Button
           type="submit"
           disabled={isSaving || !hasPermission('leads.create')}
@@ -212,7 +294,48 @@ export default function LeadEntryPanel({
                 className="rounded-lg border border-[#243352] p-3 text-xs text-[#CBD5E1]"
               >
                 <strong className="text-[#F1F5F9]">{lead.name}</strong> · {lead.phone} ·{' '}
-                {lead.origin} · {lead.status}
+                {lead.origin} · {lead.status} · {lead.record_state}
+                {lead.record_state !== 'archived' && (
+                  <div className="mt-2 flex gap-2">
+                    <Input
+                      aria-label={`Motivo para arquivar ${lead.name}`}
+                      value={archiveReason[lead.id] || ''}
+                      onChange={(e) =>
+                        setArchiveReason((current) => ({ ...current, [lead.id]: e.target.value }))
+                      }
+                      placeholder="Motivo do arquivamento"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={async () => {
+                        if (!user || !profile) return
+                        try {
+                          await archiveLead(lead.id, archiveReason[lead.id] || '')
+                          await createAuditEvent({
+                            actorId: user.id,
+                            actorEmail: user.email as string,
+                            actorProfile: profile,
+                            action: 'lead.archived',
+                            entity: 'lead',
+                            entityId: lead.id,
+                            newValue: archiveReason[lead.id],
+                            result: 'success',
+                          })
+                          setNotice('Lead arquivado sem exclusão física.')
+                        } catch (cause) {
+                          setError(
+                            cause instanceof Error
+                              ? cause.message
+                              : 'Não foi possível arquivar o lead.',
+                          )
+                        }
+                      }}
+                    >
+                      Arquivar
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

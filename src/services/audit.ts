@@ -4,6 +4,10 @@ import type { AccessProfile, PermissionKey } from '@/data/accessControl'
 
 export type AuditAction =
   | 'lead.created'
+  | 'lead.duplicate_detected'
+  | 'lead.linked'
+  | 'lead.new_justified'
+  | 'lead.archived'
   | 'lead.status_changed'
   | 'lead.contact_changed'
   | 'permission.denied'

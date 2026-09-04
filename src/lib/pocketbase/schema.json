@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T11:17:19.734Z",
+  "generatedAt": "2026-09-04T11:27:21.690Z",
   "collections": [
     {
       "name": "users",
@@ -228,6 +228,45 @@
           "type": "email",
           "required": false,
           "system": false
+        },
+        {
+          "name": "duplicate_resolution",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": [
+            "pending",
+            "linked",
+            "new_justified"
+          ]
+        },
+        {
+          "name": "linked_lead_id",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "new_justification",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "record_state",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "active",
+            "archived"
+          ]
+        },
+        {
+          "name": "archive_reason",
+          "type": "text",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": []
@@ -274,7 +313,11 @@
             "lead.status_changed",
             "lead.contact_changed",
             "permission.denied",
-            "lead.created"
+            "lead.created",
+            "lead.duplicate_detected",
+            "lead.linked",
+            "lead.new_justified",
+            "lead.archived"
           ]
         },
         {
