@@ -5,7 +5,6 @@ migrate(
     const managerRule =
       "@request.auth.id != '' && @request.auth.status = 'Ativo' && @request.auth.profile = 'Gestor'"
     const leadsCollection = app.findCollectionByNameOrId('leads')
-
     const stages = app.findCollectionByNameOrId('pipeline_stages')
     stages.listRule = activeRule
     stages.viewRule = activeRule
@@ -24,7 +23,7 @@ migrate(
       stages.fields.add(new BoolField({ name: 'is_final', required: false }))
     if (!stages.fields.getByName('active'))
       stages.fields.add(new BoolField({ name: 'active', required: true }))
-    stages.indexes = ['CREATE UNIQUE INDEX idx_pipeline_stages_slug ON pipeline_stages (slug)']
+    stages.indexes = ['CREATE INDEX idx_pipeline_stages_slug ON pipeline_stages (slug)']
     app.save(stages)
 
     const conversations = app.findCollectionByNameOrId('conversations')
@@ -294,7 +293,6 @@ migrate(
         app.save(r)
       }
     })
-
     const initialStage = app.findFirstRecordByData('pipeline_stages', 'slug', 'novo')
     const leads = app.findRecordsByFilter('leads', "pipeline_stage = ''", '-created', 500, 0)
     leads.forEach((lead) => {
