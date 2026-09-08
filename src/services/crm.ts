@@ -110,13 +110,11 @@ export const saveEvolution = (data: Pick<EvolutionConnection, 'instance_name' | 
     .collection('evolution_connections')
     .create<EvolutionConnection>({ ...data, status: 'nao_configurada', phone: '' })
 export const sendManualMessage = async (conversation: string, body: string) =>
-  pb
-    .collection('messages')
-    .create<Message>({
-      conversation,
-      body,
-      direction: 'outgoing',
-      sender_type: 'atendente',
-      delivery_status: 'pendente',
-      external_id: '',
-    })
+  pb.collection('messages').create<Message>({
+    conversation,
+    body,
+    direction: 'outgoing',
+    sender_type: 'atendente',
+    delivery_status: 'pendente',
+    external_id: '',
+  })

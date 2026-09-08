@@ -202,7 +202,7 @@ migrate(
       deleteRule: managerRule,
       fields: [
         new TextField({ name: 'instance_name', required: true }),
-        new UrlField({ name: 'base_url', required: true }),
+        new URLField({ name: 'base_url', required: true }),
         new SelectField({
           name: 'status',
           required: true,
@@ -251,7 +251,6 @@ migrate(
       record.set('active', true)
       app.save(record)
     })
-
     const rule = new Record(rules)
     rule.set('name', 'Retomar tentativa de agendamento')
     rule.set('delay_days', 3)
@@ -261,7 +260,6 @@ migrate(
     )
     rule.set('active', true)
     app.save(rule)
-
     const fields = [
       ['convenio', 'Convênio', 'texto', 1],
       ['melhor_horario', 'Melhor horário para contato', 'texto', 2],
@@ -280,9 +278,8 @@ migrate(
   },
   (app) => {
     const leads = app.findCollectionByNameOrId('leads')
-    for (const name of ['pipeline_stage', 'custom_values_json', 'last_contact_at']) {
+    for (const name of ['pipeline_stage', 'custom_values_json', 'last_contact_at'])
       if (leads.fields.getByName(name)) leads.fields.removeByName(name)
-    }
     app.save(leads)
     for (const name of [
       'messages',
