@@ -1,74 +1,73 @@
-import React from 'react'
-import { Crosshair, LogOut, CheckCircle2 } from 'lucide-react'
-import { useAuth } from '@/context/AuthContext'
-import AccessControlPanel from '@/components/AccessControlPanel'
-import FunnelDictionaryPanel from '@/components/FunnelDictionaryPanel'
-import TraceabilityPanel from '@/components/TraceabilityPanel'
+import { ArrowRight, BarChart3, CheckCircle2, GitBranch, ShieldCheck, Users } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+const modules = [
+  {
+    to: '/leads',
+    title: 'Operação de leads',
+    description: 'Cadastro, busca, fila, SLA, perfis e trilha de auditoria.',
+    icon: Users,
+  },
+  {
+    to: '/rastreabilidade',
+    title: 'Rastreabilidade',
+    description: 'Indicadores, filtros, exceções e exportação para o Gestor.',
+    icon: BarChart3,
+  },
+  {
+    to: '/funil',
+    title: 'Funil comercial',
+    description: 'Estados, transições permitidas, próximas ações e motivos de perda.',
+    icon: GitBranch,
+  },
+]
 
 export default function Dashboard() {
-  const { user, logout } = useAuth()
-
   return (
-    <div className="flex flex-col min-h-screen bg-[#0B1120] text-[#F1F5F9]">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[#243352] bg-[#111A2C]/80 px-6 py-4 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#10B981] to-[#059669] shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-            <Crosshair className="h-5 w-5 text-white" />
+    <div className="space-y-8 animate-fade-in">
+      <section className="rounded-2xl border border-[#243352] bg-gradient-to-r from-[#111A2C] via-[#111A2C] to-[#1A2537] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.3)] sm:p-8">
+        <div className="max-w-3xl space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#10B981]/30 bg-[#10B981]/15 px-3 py-1 text-xs font-medium text-[#10B981]">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Fundação do funil ativa
           </div>
-          <div>
-            <span className="text-xl font-bold tracking-tight text-white">LeadsPro</span>
-            <span className="ml-2 rounded-full bg-[#10B981]/15 px-2 py-0.5 text-[10px] font-semibold text-[#10B981] border border-[#10B981]/30">
-              Gestão de Leads
-            </span>
-          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Painel de Gestão de Atendimento VDS
+          </h1>
+          <p className="text-sm text-[#94A3B8] md:text-base">
+            Acesse cada área do sistema pelas rotas abaixo. Os módulos deixaram de ficar
+            concentrados em uma única página.
+          </p>
         </div>
+      </section>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex flex-col text-right">
-            <span className="text-sm font-semibold text-[#F1F5F9]">
-              {(user?.name as string) || (user?.email as string) || 'Usuário'}
-            </span>
-            <span className="text-xs text-[#94A3B8]">
-              {(user?.email as string) || 'Autenticado'}
-            </span>
-          </div>
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 rounded-lg bg-[#1A2537] hover:bg-[#EF4444]/20 hover:text-[#EF4444] border border-[#243352] px-3.5 py-2 text-xs font-medium text-[#94A3B8] transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sair</span>
-          </button>
+      <section aria-labelledby="modules-title">
+        <div className="mb-4 flex items-center gap-2">
+          <ShieldCheck className="h-5 w-5 text-[#10B981]" />
+          <h2 id="modules-title" className="text-xl font-semibold text-[#F1F5F9]">
+            Áreas do sistema
+          </h2>
         </div>
-      </header>
-
-      {/* Main Dashboard Content */}
-      <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full space-y-8 animate-fade-in">
-        {/* Welcome Banner */}
-        <div className="rounded-2xl bg-gradient-to-r from-[#111A2C] via-[#111A2C] to-[#1A2537] border border-[#243352] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
-          <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 px-3 py-1 text-xs text-[#10B981] font-medium">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Sessão iniciada com sucesso via PocketBase
-            </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              Painel de Gestão de Atendimento VDS
-            </h1>
-            <p className="text-sm md:text-base text-[#94A3B8]">
-              Central de conversão de leads do laboratório VDS. Acompanhe cobertura de status,
-              primeira resposta, próxima ação e exceções do funil.
-            </p>
-          </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {modules.map(({ to, title, description, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className="group rounded-xl border border-[#243352] bg-[#111A2C] p-5 transition hover:-translate-y-0.5 hover:border-[#10B981]/50 hover:shadow-[0_10px_30px_rgba(16,185,129,0.08)]"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#10B981]/10 text-[#10B981]">
+                <Icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 font-semibold text-[#F1F5F9]">{title}</h3>
+              <p className="mt-2 min-h-10 text-sm text-[#94A3B8]">{description}</p>
+              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#10B981]">
+                Abrir área{' '}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
+          ))}
         </div>
-
-        {/* Real traceability panel (T1.15) — replaces the mock metrics grid */}
-        <TraceabilityPanel />
-
-        <AccessControlPanel />
-
-        <FunnelDictionaryPanel />
-      </main>
+      </section>
     </div>
   )
 }

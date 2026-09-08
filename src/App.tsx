@@ -1,15 +1,17 @@
-/* Main App Component - Handles routing (using react-router-dom) with AuthProvider and RouteGuards */
 import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { AuthProvider } from './context/AuthContext'
-import { ProtectedRoute, PublicOnlyRoute } from './components/RouteGuards'
-import Index from './pages/Index'
-import Dashboard from './pages/Dashboard'
-import NotFound from './pages/NotFound'
-import Layout from './components/Layout'
+import AppShell from '@/components/AppShell'
+import { ProtectedRoute, PublicOnlyRoute } from '@/components/RouteGuards'
+import { AuthProvider } from '@/context/AuthContext'
+import Dashboard from '@/pages/Dashboard'
+import FunnelPage from '@/pages/FunnelPage'
+import Index from '@/pages/Index'
+import LeadsPage from '@/pages/LeadsPage'
+import NotFound from '@/pages/NotFound'
+import TraceabilityPage from '@/pages/TraceabilityPage'
 
 class AppErrorBoundary extends React.Component<
   React.PropsWithChildren,
@@ -58,6 +60,12 @@ class AppErrorBoundary extends React.Component<
   }
 }
 
+const protectedShell = (
+  <ProtectedRoute>
+    <AppShell />
+  </ProtectedRoute>
+)
+
 const App = () => (
   <AppErrorBoundary>
     <BrowserRouter>
@@ -66,26 +74,21 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Routes>
-            <Route element={<Layout />}>
-              {/* Protected dashboard at / */}
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              {/* Login screen accessible at /login, and as Index unauthenticated */}
-              <Route
-                path="/login"
-                element={
-                  <PublicOnlyRoute>
-                    <Index />
-                  </PublicOnlyRoute>
-                }
-              />
+            <Route
+              path="/login"
+              element={
+                <PublicOnlyRoute>
+                  <Index />
+                </PublicOnlyRoute>
+              }
+            />
+            <Route element={protectedShell}>
+              <Route index element={<Dashboard />} />
+              <Route path="leads" element={<LeadsPage />} />
+              <Route path="rastreabilidade" element={<TraceabilityPage />} />
+              <Route path="funil" element={<FunnelPage />} />
             </Route>
+            <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
