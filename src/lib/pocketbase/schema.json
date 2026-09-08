@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T20:57:52.643Z",
+  "generatedAt": "2026-09-08T20:06:06.496Z",
   "collections": [
     {
       "name": "users",
@@ -29,21 +29,39 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate", "onUpdate"]
+          "autodateTriggers": [
+            "onCreate",
+            "onUpdate"
+          ]
         },
         {
           "name": "profile",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
+        },
+        {
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "system": false,
+          "selectValues": [
+            "Ativo",
+            "Desativado"
+          ]
         }
       ],
       "indexes": [
@@ -55,8 +73,8 @@
       "name": "synthetic_users",
       "type": "base",
       "apiRules": {
-        "list": "@request.auth.id != ''",
-        "view": "@request.auth.id != ''",
+        "list": "@request.auth.id != '' && @request.auth.status = 'Ativo' && (@request.auth.profile = 'Atendente' || @request.auth.profile = 'Gestor')",
+        "view": "@request.auth.id != '' && @request.auth.status = 'Ativo' && (@request.auth.profile = 'Atendente' || @request.auth.profile = 'Gestor')",
         "create": null,
         "update": null,
         "delete": null
@@ -85,28 +103,38 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         },
         {
           "name": "status",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Ativo", "Desativado"]
+          "selectValues": [
+            "Ativo",
+            "Desativado"
+          ]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         }
       ],
       "indexes": []
@@ -115,10 +143,10 @@
       "name": "leads",
       "type": "base",
       "apiRules": {
-        "list": "@request.auth.id != ''",
-        "view": "@request.auth.id != ''",
-        "create": "@request.auth.id != ''",
-        "update": "@request.auth.id != ''",
+        "list": "@request.auth.id != '' && @request.auth.status = 'Ativo' && (@request.auth.profile = 'Atendente' || @request.auth.profile = 'Gestor')",
+        "view": "@request.auth.id != '' && @request.auth.status = 'Ativo' && (@request.auth.profile = 'Atendente' || @request.auth.profile = 'Gestor')",
+        "create": "@request.auth.id != '' && @request.auth.status = 'Ativo' && (@request.auth.profile = 'Atendente' || @request.auth.profile = 'Gestor')",
+        "update": "@request.auth.id != '' && @request.auth.status = 'Ativo' && (@request.auth.profile = 'Atendente' || @request.auth.profile = 'Gestor')",
         "delete": null
       },
       "fields": [
@@ -171,21 +199,29 @@
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         },
         {
           "name": "service",
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Citologia", "Papanicolau", "Outro"]
+          "selectValues": [
+            "Citologia",
+            "Papanicolau",
+            "Outro"
+          ]
         },
         {
           "name": "need",
@@ -210,7 +246,11 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["pending", "linked", "new_justified"]
+          "selectValues": [
+            "pending",
+            "linked",
+            "new_justified"
+          ]
         },
         {
           "name": "linked_lead_id",
@@ -229,7 +269,10 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["active", "archived"]
+          "selectValues": [
+            "active",
+            "archived"
+          ]
         },
         {
           "name": "archive_reason",
@@ -260,7 +303,11 @@
           "type": "select",
           "required": false,
           "system": false,
-          "selectValues": ["atendido_no_prazo", "estourado", "pendente_contingencia"]
+          "selectValues": [
+            "atendido_no_prazo",
+            "estourado",
+            "pendente_contingencia"
+          ]
         },
         {
           "name": "contingency_mode",
@@ -300,9 +347,9 @@
       "name": "audit_events",
       "type": "base",
       "apiRules": {
-        "list": "@request.auth.profile = 'Gestor'",
-        "view": "@request.auth.profile = 'Gestor'",
-        "create": "@request.auth.id != '' && actor_id = @request.auth.id && actor_email = @request.auth.email && actor_profile = @request.auth.profile",
+        "list": "@request.auth.id != '' && @request.auth.status = 'Ativo' && @request.auth.profile = 'Gestor'",
+        "view": "@request.auth.id != '' && @request.auth.status = 'Ativo' && @request.auth.profile = 'Gestor'",
+        "create": "@request.auth.id != '' && @request.auth.status = 'Ativo' && actor_id = @request.auth.id && actor_email = @request.auth.email && actor_profile = @request.auth.profile",
         "update": null,
         "delete": null
       },
@@ -324,7 +371,10 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["Atendente", "Gestor"]
+          "selectValues": [
+            "Atendente",
+            "Gestor"
+          ]
         },
         {
           "name": "action",
@@ -371,24 +421,33 @@
           "type": "select",
           "required": true,
           "system": false,
-          "selectValues": ["success", "denied"]
+          "selectValues": [
+            "success",
+            "denied"
+          ]
         },
         {
           "name": "created",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onCreate"]
+          "autodateTriggers": [
+            "onCreate"
+          ]
         },
         {
           "name": "updated",
           "type": "autodate",
           "required": false,
           "system": false,
-          "autodateTriggers": ["onUpdate"]
+          "autodateTriggers": [
+            "onUpdate"
+          ]
         }
       ],
-      "indexes": ["CREATE INDEX idx_audit_events_created ON audit_events (created DESC)"]
+      "indexes": [
+        "CREATE INDEX idx_audit_events_created ON audit_events (created DESC)"
+      ]
     }
   ]
 }
