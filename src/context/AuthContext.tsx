@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { RecordAuthResponse, RecordModel } from 'pocketbase'
 import pb from '@/lib/pocketbase/client'
 import { permissionMatrix, type AccessProfile, type PermissionKey } from '@/data/accessControl'
@@ -16,78 +16,60 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-type SyntheticProfile = { profile: AccessProfile; status: 'Ativo' | 'Desativado' }
-
-async function loadSyntheticProfile(email: string): Promise<SyntheticProfile | null> {
-  try {
-    const record = await pb
-      .collection('synthetic_users')
-      .getFirstListItem(`email = "${email.replaceAll('"', '\\"')}"`)
-    return {
-      profile: record.profile as AccessProfile,
-      status: record.status as SyntheticProfile['status'],
-    }
-  } catch {
-    return null
+function readAccess(record: RecordModel | null): {
+  profile: AccessProfile | null
+  isActive: boolean
+} {
+  const rawProfile = record?.profile
+  const profile =
+    rawProfile === 'Atendente' || rawProfile === 'Gestor' ? (rawProfile as AccessProfile) : null
+  return {
+    profile,
+    isActive: Boolean(profile && record?.status === 'Ativo'),
   }
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<RecordModel | null>(() => {
-    return (pb.authStore.record as RecordModel) || null
-  })
-  const [profile, setProfile] = useState<AccessProfile | null>(null)
-  const [isActive, setIsActive] = useState(false)
+  const initialRecord = (pb.authStore.record as RecordModel) || null
+  const initialAccess = readAccess(initialRecord)
+  const [user, setUser] = useState<RecordModel | null>(initialRecord)
+  const [profile, setProfile] = useState<AccessProfile | null>(initialAccess.profile)
+  const [isActive, setIsActive] = useState(initialAccess.isActive)
   const [isValid, setIsValid] = useState<boolean>(() => pb.authStore.isValid)
-  const [isLoading, setIsLoading] = useState<boolean>(pb.authStore.isValid)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const syncProfile = useCallback(async (record: RecordModel | null) => {
-    if (!record?.email) {
-      setProfile(null)
-      setIsActive(false)
-      return
-    }
-    const syntheticProfile = await loadSyntheticProfile(record.email as string)
-    setProfile(syntheticProfile?.profile || null)
-    setIsActive(syntheticProfile?.status === 'Ativo')
+  const syncAccess = useCallback((record: RecordModel | null) => {
+    const access = readAccess(record)
+    setProfile(access.profile)
+    setIsActive(access.isActive)
+    return access
   }, [])
-
-  useEffect(() => {
-    let active = true
-    void syncProfile(user).finally(() => {
-      if (active) setIsLoading(false)
-    })
-    return () => {
-      active = false
-    }
-  }, [syncProfile, user])
 
   useEffect(() => {
     const unsubscribe = pb.authStore.onChange((_token, model) => {
       const nextUser = (model as RecordModel) || null
       setUser(nextUser)
       setIsValid(pb.authStore.isValid)
-      setIsLoading(Boolean(nextUser))
-      void syncProfile(nextUser).finally(() => setIsLoading(false))
+      syncAccess(nextUser)
     })
     return () => unsubscribe()
-  }, [syncProfile])
+  }, [syncAccess])
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true)
     try {
       const authData = await pb.collection('users').authWithPassword(email.trim(), password)
-      const syntheticProfile = await loadSyntheticProfile(authData.record.email as string)
-      if (!syntheticProfile || syntheticProfile.status !== 'Ativo') {
+      const access = readAccess(authData.record)
+      if (!access.profile || !access.isActive) {
         pb.authStore.clear()
         setUser(null)
         setIsValid(false)
-        setProfile(syntheticProfile?.profile || null)
+        setProfile(access.profile)
         setIsActive(false)
         throw new Error('Usuário sem perfil ativo para operar o sistema.')
       }
       setUser(authData.record)
-      setProfile(syntheticProfile.profile)
+      setProfile(access.profile)
       setIsActive(true)
       setIsValid(true)
       return authData
