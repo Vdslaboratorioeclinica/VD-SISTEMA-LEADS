@@ -6,48 +6,41 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import AppShell from '@/components/AppShell'
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/RouteGuards'
 import { AuthProvider } from '@/context/AuthContext'
+import AdminPage from '@/pages/AdminPage'
+import ContactsPage from '@/pages/ContactsPage'
+import ConversationsPage from '@/pages/ConversationsPage'
 import Dashboard from '@/pages/Dashboard'
-import FunnelPage from '@/pages/FunnelPage'
+import FollowUpsPage from '@/pages/FollowUpsPage'
 import Index from '@/pages/Index'
-import LeadsPage from '@/pages/LeadsPage'
+import KanbanPage from '@/pages/KanbanPage'
 import NotFound from '@/pages/NotFound'
-import TraceabilityPage from '@/pages/TraceabilityPage'
+import ReportsPage from '@/pages/ReportsPage'
 
 class AppErrorBoundary extends React.Component<
   React.PropsWithChildren,
   { hasError: boolean; message: string }
 > {
   state = { hasError: false, message: '' }
-
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, message: error.message }
   }
-
   componentDidCatch(error: Error) {
     console.error('Erro ao renderizar o sistema:', error)
   }
-
   render() {
-    if (this.state.hasError) {
+    if (this.state.hasError)
       return (
-        <main className="flex min-h-screen items-center justify-center bg-[#0B1120] p-6 text-[#F1F5F9]">
-          <section
-            className="max-w-lg rounded-xl border border-rose-400/30 bg-[#111A2C] p-6"
-            role="alert"
-          >
+        <main className="grid min-h-screen place-items-center bg-[#08111f] p-6 text-slate-100">
+          <section className="max-w-lg rounded-2xl border border-rose-400/30 bg-slate-900 p-6">
             <h1 className="text-xl font-semibold">Não foi possível carregar o sistema</h1>
-            <p className="mt-2 text-sm text-[#CBD5E1]">
-              Atualize a página. Se o problema persistir, informe o horário e a etapa em que
-              ocorreu.
+            <p className="mt-2 text-sm text-slate-400">
+              Atualize a página. Se persistir, informe o horário.
             </p>
-            {this.state.message && (
-              <p className="mt-3 rounded-lg bg-[#0B1120] p-3 text-xs text-rose-200" role="status">
-                Detalhe técnico: {this.state.message}
-              </p>
-            )}
+            <p className="mt-3 rounded-lg bg-slate-950 p-3 text-xs text-rose-200">
+              {this.state.message}
+            </p>
             <button
-              type="button"
-              className="mt-4 rounded-lg bg-[#10B981] px-4 py-2 text-sm font-medium text-[#06251A]"
+              className="mt-4 rounded-lg bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950"
               onClick={() => window.location.reload()}
             >
               Recarregar
@@ -55,17 +48,14 @@ class AppErrorBoundary extends React.Component<
           </section>
         </main>
       )
-    }
     return this.props.children
   }
 }
-
-const protectedShell = (
+const shell = (
   <ProtectedRoute>
     <AppShell />
   </ProtectedRoute>
 )
-
 const App = () => (
   <AppErrorBoundary>
     <BrowserRouter>
@@ -82,13 +72,18 @@ const App = () => (
                 </PublicOnlyRoute>
               }
             />
-            <Route element={protectedShell}>
+            <Route element={shell}>
               <Route index element={<Dashboard />} />
-              <Route path="leads" element={<LeadsPage />} />
-              <Route path="rastreabilidade" element={<TraceabilityPage />} />
-              <Route path="funil" element={<FunnelPage />} />
+              <Route path="conversas" element={<ConversationsPage />} />
+              <Route path="kanban" element={<KanbanPage />} />
+              <Route path="follow-ups" element={<FollowUpsPage />} />
+              <Route path="contatos" element={<ContactsPage />} />
+              <Route path="relatorios" element={<ReportsPage />} />
+              <Route path="admin" element={<AdminPage />} />
+              <Route path="leads" element={<Navigate to="/kanban" replace />} />
+              <Route path="rastreabilidade" element={<Navigate to="/relatorios" replace />} />
+              <Route path="funil" element={<Navigate to="/kanban" replace />} />
             </Route>
-            <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
@@ -96,5 +91,4 @@ const App = () => (
     </BrowserRouter>
   </AppErrorBoundary>
 )
-
 export default App
