@@ -5,15 +5,26 @@ import { useAuth } from '@/context/AuthContext'
 
 export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isValid, isActive, isLoading } = useAuth()
-
-  if (isLoading) {
+  if (isLoading)
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-sm text-[#94A3B8]">
+      <div className="grid min-h-screen place-items-center bg-[#08111f] text-sm text-slate-400">
         Validando acesso…
       </div>
     )
-  }
   if (!isValid || !isActive) return <Navigate to="/login" replace />
+  return <>{children}</>
+}
+
+export const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isValid, isActive, isLoading, profile } = useAuth()
+  if (isLoading)
+    return (
+      <div className="grid min-h-screen place-items-center bg-[#08111f] text-sm text-slate-400">
+        Validando acesso…
+      </div>
+    )
+  if (!isValid || !isActive) return <Navigate to="/login" replace />
+  if (profile !== 'Gestor') return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -21,7 +32,7 @@ export const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ child
   const { isValid, isActive, isLoading } = useAuth()
   if (isLoading)
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-sm text-[#94A3B8]">
+      <div className="grid min-h-screen place-items-center bg-[#08111f] text-sm text-slate-400">
         Validando acesso…
       </div>
     )

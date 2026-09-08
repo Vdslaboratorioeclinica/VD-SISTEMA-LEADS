@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import AppShell from '@/components/AppShell'
-import { ProtectedRoute, PublicOnlyRoute } from '@/components/RouteGuards'
+import { ManagerRoute, ProtectedRoute, PublicOnlyRoute } from '@/components/RouteGuards'
 import { AuthProvider } from '@/context/AuthContext'
 import AdminPage from '@/pages/AdminPage'
 import ContactsPage from '@/pages/ContactsPage'
@@ -79,7 +79,14 @@ const App = () => (
               <Route path="follow-ups" element={<FollowUpsPage />} />
               <Route path="contatos" element={<ContactsPage />} />
               <Route path="relatorios" element={<ReportsPage />} />
-              <Route path="admin" element={<AdminPage />} />
+              <Route
+                path="admin"
+                element={
+                  <ManagerRoute>
+                    <AdminPage />
+                  </ManagerRoute>
+                }
+              />
               <Route path="leads" element={<Navigate to="/kanban" replace />} />
               <Route path="rastreabilidade" element={<Navigate to="/relatorios" replace />} />
               <Route path="funil" element={<Navigate to="/kanban" replace />} />
