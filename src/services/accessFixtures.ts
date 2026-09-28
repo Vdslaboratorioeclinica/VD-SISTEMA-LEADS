@@ -60,7 +60,6 @@ export function validateLeadInput(input: LeadInput): LeadInput {
   if (!name) throw new Error('Informe o nome do lead.')
   if (!origin || !leadOrigins.includes(origin as (typeof leadOrigins)[number]))
     throw new Error('Selecione uma origem válida.')
-  if (!need) throw new Error('Informe a necessidade do lead.')
   if (email && !/^\S+@\S+\.\S+$/.test(email)) throw new Error('Informe um e-mail válido.')
   return { ...input, name, email, origin, need, phone: normalizePhone(input.phone) }
 }
@@ -136,7 +135,7 @@ export async function createLead(
     email: valid.email || '',
     origin: valid.origin,
     service: valid.service,
-    need: valid.need,
+    need: valid.need || '—',
     responsible: '',
     status: leadInitialStatus,
     data_class: 'synthetic',

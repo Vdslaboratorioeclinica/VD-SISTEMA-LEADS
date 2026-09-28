@@ -38,8 +38,9 @@ export const leadFieldDictionary = [
     key: 'need',
     label: 'Necessidade',
     type: 'texto',
-    required: true,
-    description: 'Descrição inicial informada pelo operador.',
+    required: false,
+    description:
+      'Opcional desde 28/09/2026 (decisão da gestão VDS); descrição inicial informada pelo operador.',
   },
   {
     key: 'responsible',

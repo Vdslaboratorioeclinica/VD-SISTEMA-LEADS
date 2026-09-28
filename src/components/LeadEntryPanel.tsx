@@ -292,9 +292,8 @@ export default function LeadEntryPanel({
             </select>
           </label>
           <label className="text-xs text-[#CBD5E1] sm:col-span-2">
-            Necessidade
+            Necessidade (opcional)
             <Input
-              required
               value={form.need}
               onChange={(e) => updateField('need', e.target.value)}
               className={fieldClass}
