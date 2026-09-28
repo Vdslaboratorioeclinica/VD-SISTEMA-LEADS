@@ -351,6 +351,12 @@ export default function LeadsPage() {
                 <tr>
                   <td colSpan={9} className="px-4 py-10 text-center text-sm text-slate-400">
                     Nenhum lead encontrado com os filtros atuais.
+                    {searchTerm.includes('@') && (
+                      <span className="mt-1 block text-xs text-slate-500">
+                        Busca por e-mail: verifique se o lead tem e-mail cadastrado — o campo é
+                        opcional no cadastro e muitos leads só têm telefone.
+                      </span>
+                    )}
                   </td>
                 </tr>
               )}

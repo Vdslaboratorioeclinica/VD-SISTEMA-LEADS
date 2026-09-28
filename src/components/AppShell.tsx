@@ -77,8 +77,8 @@ export default function AppShell() {
   const { user, profile, logout } = useAuth()
   return (
     <div className="min-h-screen bg-[#08111f] text-slate-100 md:flex">
-      <aside className="border-b border-slate-800 bg-[#0d1727] md:sticky md:top-0 md:h-screen md:w-64 md:border-b-0 md:border-r">
-        <div className="flex items-center justify-between px-5 py-5">
+      <aside className="flex flex-col border-b border-slate-800 bg-[#0d1727] md:sticky md:top-0 md:h-screen md:w-64 md:border-b-0 md:border-r">
+        <div className="flex shrink-0 items-center justify-between px-5 py-5">
           <NavLink to="/" className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/20">
               <Stethoscope className="h-5 w-5 text-white" />
@@ -96,14 +96,14 @@ export default function AppShell() {
             <LogOut className="h-4 w-4" />
           </button>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 md:block md:space-y-1">
+        <nav className="flex shrink-0 gap-1 overflow-x-auto px-3 pb-3 md:min-h-0 md:flex-1 md:block md:space-y-1 md:overflow-x-hidden md:overflow-y-auto md:pb-0">
           <NavSection title="Operação" items={operationNav} profile={profile} />
           <NavSection title="Gestão" items={managementNav} profile={profile} />
           <NavSection title="Configurações" items={settingsNav} profile={profile} />
         </nav>
-        <div className="mt-auto hidden border-t border-slate-800 p-4 md:block md:absolute md:bottom-0 md:w-full">
+        <div className="hidden shrink-0 border-t border-slate-800 p-4 md:block">
           <div className="mb-3 truncate text-xs text-slate-400">
-            <strong className="block text-slate-200">
+            <strong className="block truncate text-slate-200">
               {(user?.name as string) || (user?.email as string)}
             </strong>
             {profile}

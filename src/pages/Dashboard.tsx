@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowRight, CalendarClock, Clock, Loader2, MessageCircle, Users } from 'lucide-react'
+import { ArrowRight, CalendarClock, Clock, Loader2, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { PersistedLead } from '@/services/accessFixtures'
 import { listSyntheticLeads } from '@/services/accessFixtures'
@@ -74,6 +74,21 @@ export default function Dashboard() {
         </p>
       </header>
 
+      <div className="flex flex-wrap gap-3">
+        <Link
+          to="/leads"
+          className="group inline-flex items-center gap-2 rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300 hover:bg-cyan-400/20"
+        >
+          Abrir leads <ArrowRight className="h-4 w-4 group-hover:translate-x-1" />
+        </Link>
+        <Link
+          to="/configuracoes/whatsapp"
+          className="group inline-flex items-center gap-2 rounded-lg border border-violet-400/30 bg-violet-400/10 px-4 py-2 text-sm font-medium text-violet-300 hover:bg-violet-400/20"
+        >
+          Ver configuração WhatsApp <ArrowRight className="h-4 w-4 group-hover:translate-x-1" />
+        </Link>
+      </div>
+
       {isLoading && (
         <p className="flex items-center gap-2 text-sm text-slate-400">
           <Loader2 className="h-4 w-4 animate-spin text-cyan-300" /> Carregando indicadores…
@@ -98,35 +113,6 @@ export default function Dashboard() {
                 <span className="text-xs text-slate-500">{hint}</span>
               </div>
             ))}
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Link
-              to="/leads"
-              className="group rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/10 to-transparent p-6"
-            >
-              <MessageCircle className="h-6 w-6 text-cyan-300" />
-              <h2 className="mt-4 text-xl font-semibold">Operação de leads</h2>
-              <p className="mt-2 text-sm text-slate-400">
-                Todos os contatos com busca, filtros e SLA de primeira resposta.
-              </p>
-              <span className="mt-5 flex items-center gap-2 text-sm text-cyan-300">
-                Abrir leads <ArrowRight className="h-4 w-4 group-hover:translate-x-1" />
-              </span>
-            </Link>
-            <Link
-              to="/configuracoes/whatsapp"
-              className="group rounded-2xl border border-violet-400/20 bg-gradient-to-br from-violet-400/10 to-transparent p-6"
-            >
-              <CalendarClock className="h-6 w-6 text-violet-300" />
-              <h2 className="mt-4 text-xl font-semibold">Integração WhatsApp</h2>
-              <p className="mt-2 text-slate-400">
-                Status da instância Z-API, número de teste e política de contato da VDS.
-              </p>
-              <span className="mt-5 flex items-center gap-2 text-sm text-violet-300">
-                Ver configuração <ArrowRight className="h-4 w-4 group-hover:translate-x-1" />
-              </span>
-            </Link>
           </div>
 
           {withNextAction.length > 0 && (
