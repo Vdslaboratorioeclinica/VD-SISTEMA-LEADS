@@ -88,8 +88,8 @@ export default function LeadsPage() {
   const [slaFilter, setSlaFilter] = useState('all')
   const [page, setPage] = useState(0)
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>(() =>
-    (localStorage.getItem('vds_leads_view') as 'list' | 'kanban') || 'list',
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>(
+    () => (localStorage.getItem('vds_leads_view') as 'list' | 'kanban') || 'list',
   )
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -102,7 +102,6 @@ export default function LeadsPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => setSearchTerm(searchInput.trim()), 350)
->>>>>>>
     return () => clearTimeout(timer)
   }, [searchInput])
 
@@ -282,7 +281,6 @@ export default function LeadsPage() {
 
       <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4 xl:flex-row xl:items-center">
         <div className="relative flex-1">
->>>>>>>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
@@ -378,122 +376,122 @@ export default function LeadsPage() {
 
       {viewMode === 'list' && (
         <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
-        <div className="overflow-x-auto">
->>>>>>>
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">Nome</th>
-                <th className="px-4 py-3 font-medium">Telefone</th>
-                <th className="px-4 py-3 font-medium">Origem</th>
-                <th className="px-4 py-3 font-medium">Serviço</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">SLA</th>
-                <th className="px-4 py-3 font-medium">Responsável</th>
-                <th className="px-4 py-3 font-medium">Entrada</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/70">
-              {isLoading && (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[980px] text-left text-sm">
+              <thead className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-500">
                 <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center text-sm text-slate-400">
-                    <Loader2 className="mr-2 inline h-4 w-4 animate-spin text-cyan-300" />
-                    Carregando leads…
-                  </td>
+                  <th className="px-4 py-3 font-medium">Nome</th>
+                  <th className="px-4 py-3 font-medium">Telefone</th>
+                  <th className="px-4 py-3 font-medium">Origem</th>
+                  <th className="px-4 py-3 font-medium">Serviço</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">SLA</th>
+                  <th className="px-4 py-3 font-medium">Responsável</th>
+                  <th className="px-4 py-3 font-medium">Entrada</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              )}
-              {!isLoading && filtered.length === 0 && (
-                <tr>
-                  <td colSpan={9} className="px-4 py-10 text-center text-sm text-slate-400">
-                    Nenhum lead encontrado com os filtros atuais.
-                    {searchTerm.includes('@') && (
-                      <span className="mt-1 block text-xs text-slate-500">
-                        Busca por e-mail: verifique se o lead tem e-mail cadastrado — o campo é
-                        opcional no cadastro e muitos leads só têm telefone.
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              )}
-              {!isLoading &&
-                paged.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-slate-800/40">
-                    <td className="px-4 py-3">
-                      <span className="block font-medium text-slate-100">{lead.name}</span>
-                      {lead.email ? (
-                        <span className="block text-xs text-slate-500">{lead.email}</span>
-                      ) : null}
-                    </td>
-                    <td className="px-4 py-3 text-slate-300">{lead.phone}</td>
-                    <td className="px-4 py-3 text-slate-300">{lead.origin}</td>
-                    <td className="px-4 py-3 text-slate-300">{lead.service}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusBadgeClass(lead.status)}`}
-                      >
-                        {lead.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${slaBadgeClass(lead.sla_status)}`}
-                      >
-                        {slaBadgeLabel(lead.sla_status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-300">{lead.responsible || '—'}</td>
-                    <td className="px-4 py-3 text-xs text-slate-400">
-                      {lead.intake_at ? new Date(lead.intake_at).toLocaleDateString('pt-BR') : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setSelectedLeadId(lead.id)}
-                      >
-                        Detalhes
-                      </Button>
+              </thead>
+              <tbody className="divide-y divide-slate-800/70">
+                {isLoading && (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-10 text-center text-sm text-slate-400">
+                      <Loader2 className="mr-2 inline h-4 w-4 animate-spin text-cyan-300" />
+                      Carregando leads…
                     </td>
                   </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-4 py-3 text-xs text-slate-400">
-          <span>
-            {filtered.length === 0
-              ? 'Nenhum lead'
-              : `${safePage * PAGE_SIZE + 1}–${Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} de ${filtered.length} leads`}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={safePage === 0}
-              onClick={() => setPage(safePage - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" /> Anterior
-            </Button>
+                )}
+                {!isLoading && filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="px-4 py-10 text-center text-sm text-slate-400">
+                      Nenhum lead encontrado com os filtros atuais.
+                      {searchTerm.includes('@') && (
+                        <span className="mt-1 block text-xs text-slate-500">
+                          Busca por e-mail: verifique se o lead tem e-mail cadastrado — o campo é
+                          opcional no cadastro e muitos leads só têm telefone.
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                )}
+                {!isLoading &&
+                  paged.map((lead) => (
+                    <tr key={lead.id} className="hover:bg-slate-800/40">
+                      <td className="px-4 py-3">
+                        <span className="block font-medium text-slate-100">{lead.name}</span>
+                        {lead.email ? (
+                          <span className="block text-xs text-slate-500">{lead.email}</span>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3 text-slate-300">{lead.phone}</td>
+                      <td className="px-4 py-3 text-slate-300">{lead.origin}</td>
+                      <td className="px-4 py-3 text-slate-300">{lead.service}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusBadgeClass(lead.status)}`}
+                        >
+                          {lead.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${slaBadgeClass(lead.sla_status)}`}
+                        >
+                          {slaBadgeLabel(lead.sla_status)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-300">{lead.responsible || '—'}</td>
+                      <td className="px-4 py-3 text-xs text-slate-400">
+                        {lead.intake_at
+                          ? new Date(lead.intake_at).toLocaleDateString('pt-BR')
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setSelectedLeadId(lead.id)}
+                        >
+                          Detalhes
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 px-4 py-3 text-xs text-slate-400">
             <span>
-              Página {safePage + 1} de {pageCount}
+              {filtered.length === 0
+                ? 'Nenhum lead'
+                : `${safePage * PAGE_SIZE + 1}–${Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} de ${filtered.length} leads`}
             </span>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={safePage >= pageCount - 1}
-              onClick={() => setPage(safePage + 1)}
-            >
-              Próxima <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={safePage === 0}
+                onClick={() => setPage(safePage - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" /> Anterior
+              </Button>
+              <span>
+                Página {safePage + 1} de {pageCount}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={safePage >= pageCount - 1}
+                onClick={() => setPage(safePage + 1)}
+              >
+                Próxima <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       <LeadDetailDrawer
         lead={selectedLead}
->>>>>>>
         onClose={() => setSelectedLeadId(null)}
         onStatusChange={handleStatusChange}
         onFirstResponse={handleFirstResponse}
