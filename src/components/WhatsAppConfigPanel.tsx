@@ -49,14 +49,14 @@ export default function WhatsAppConfigPanel() {
           </div>
           <Button
             type="button"
-            variant="outline"
             onClick={() => void loadStatus()}
             disabled={isLoading}
+            className="bg-emerald-600 text-white hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-400"
           >
             {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
             ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <RefreshCw className="mr-2 h-4 w-4 text-white" />
             )}
             Atualizar
           </Button>
