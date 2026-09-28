@@ -101,8 +101,8 @@ export default function LeadsPage() {
   }
 
   useEffect(() => {
->>>>>>>
     const timer = setTimeout(() => setSearchTerm(searchInput.trim()), 350)
+>>>>>>>
     return () => clearTimeout(timer)
   }, [searchInput])
 
