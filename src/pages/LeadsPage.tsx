@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, Loader2, Search, ShieldAlert, Users } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Columns3,
+  List,
+  Loader2,
+  Search,
+  ShieldAlert,
+  Users,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import LeadDetailDrawer from '@/components/LeadDetailDrawer'
+import LeadsKanbanBoard from '@/components/LeadsKanbanBoard'
 import { useAuth } from '@/context/AuthContext'
 import { leadOrigins } from '@/data/leadDictionary'
 import { funnelTransitions } from '@/data/funnelDictionary'
@@ -78,11 +88,20 @@ export default function LeadsPage() {
   const [slaFilter, setSlaFilter] = useState('all')
   const [page, setPage] = useState(0)
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>(() =>
+    (localStorage.getItem('vds_leads_view') as 'list' | 'kanban') || 'list',
+  )
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
+  function switchView(mode: 'list' | 'kanban') {
+    setViewMode(mode)
+    localStorage.setItem('vds_leads_view', mode)
+  }
+
   useEffect(() => {
+>>>>>>>
     const timer = setTimeout(() => setSearchTerm(searchInput.trim()), 350)
     return () => clearTimeout(timer)
   }, [searchInput])
@@ -237,8 +256,33 @@ export default function LeadsPage() {
         </div>
       )}
 
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-slate-500">
+          {filtered.length} lead{filtered.length === 1 ? '' : 's'} com os filtros atuais
+        </p>
+        <div className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900/60 p-1">
+          <button
+            type="button"
+            onClick={() => switchView('list')}
+            aria-pressed={viewMode === 'list'}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${viewMode === 'list' ? 'bg-cyan-400/10 text-cyan-300' : 'text-slate-400 hover:text-white'}`}
+          >
+            <List className="h-3.5 w-3.5" /> Lista
+          </button>
+          <button
+            type="button"
+            onClick={() => switchView('kanban')}
+            aria-pressed={viewMode === 'kanban'}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${viewMode === 'kanban' ? 'bg-cyan-400/10 text-cyan-300' : 'text-slate-400 hover:text-white'}`}
+          >
+            <Columns3 className="h-3.5 w-3.5" /> Kanban
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/60 p-4 xl:flex-row xl:items-center">
         <div className="relative flex-1">
+>>>>>>>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
@@ -322,8 +366,20 @@ export default function LeadsPage() {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
+      {viewMode === 'kanban' && (
+        <LeadsKanbanBoard
+          leads={filtered}
+          onStatusChange={handleStatusChange}
+          onOpenLead={(leadId) => setSelectedLeadId(leadId)}
+          isSaving={isSaving}
+          canUpdate={hasPermission('leads.update')}
+        />
+      )}
+
+      {viewMode === 'list' && (
+        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
         <div className="overflow-x-auto">
+>>>>>>>
           <table className="w-full min-w-[980px] text-left text-sm">
             <thead className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-500">
               <tr>
@@ -433,9 +489,11 @@ export default function LeadsPage() {
           </div>
         </div>
       </div>
+      )}
 
       <LeadDetailDrawer
         lead={selectedLead}
+>>>>>>>
         onClose={() => setSelectedLeadId(null)}
         onStatusChange={handleStatusChange}
         onFirstResponse={handleFirstResponse}
