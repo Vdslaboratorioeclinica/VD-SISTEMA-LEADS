@@ -309,7 +309,6 @@ export default function LeadEntryPanel({
             />
             Cadastro manual em contingência — preservar horário e origem
           </label>
-          =======
         </div>
         {duplicates.length > 0 && (
           <div
