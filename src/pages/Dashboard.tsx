@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowRight, CalendarClock, Clock, Loader2, Users } from 'lucide-react'
+import { ArrowRight, CalendarClock, Clock, Loader2, MessageCircle, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { PersistedLead } from '@/services/accessFixtures'
 import { listSyntheticLeads } from '@/services/accessFixtures'
